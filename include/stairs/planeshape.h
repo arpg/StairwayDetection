@@ -6,6 +6,7 @@
 #include <pcl/common/eigen.h>
 #include <pcl/common/common.h>
 #include <pcl/common/transforms.h>
+#include <yaml-cpp/yaml.h>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointNormal PointNT;
@@ -28,6 +29,8 @@ public:
 
 
     planeshape();
+
+    void loadConfig(YAML::Node);
 
     inline void clear()
     {

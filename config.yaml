@@ -1,0 +1,100 @@
+ros:
+  parent_frame_id: base_link
+preanalysis:
+  # Set if downsample active
+  dsFlag: True
+  # Set downsample resolution
+  dsResolution: 0.01
+  # Normal estimation - find N neareast neighbors (:=0) - find points within distance (:=1)
+  neNeighMethod: 0
+  neSearchNeighbours: 24
+  neSearchRadius: 0.2
+  # Ghost point filter active?
+  gpFlag: True
+  # Ghost point filter angle in degress
+  gpAngle: 25.0
+  # Point normal filter active?
+  pfActive: False
+  # Point normal filter angle in degress
+  pfAngle: 20.0
+  # Floor seperation active?
+  fsActive: False
+  # Floor seperation angle in degrees
+  fsAngle: 30.0
+  # Floor seperation distance
+  fsRange: 0.05
+  # Set the position of the LIDAR (required for floor separation)
+  rob_x: 0.00
+  rob_y: 0.00
+  rob_z: 0.00
+  # Rotate pointcloud around z-axis
+  robAngle: 0
+  # Downsample method - Standard: flase - Experimental version: true
+  dsMethod: False
+  # Process ghost point filter and floor separation in separate steps
+  neMethod: 0
+regiongrowing:
+  # Minimum cluster size 
+  minClustSize: 30
+  # Number of neighbors
+  noNeigh: 24
+  # Smoothness flag (true: compare to seed point false: compare to neighboring point) 
+  smoothFlag: True
+  # Smoothness threshold 
+  smoothThresh: 30.0 
+  # Residual flag (true: compare to seed point false: compare to neighboring point) 
+  resFlag: True
+  # Residual distance 
+  resThresh: 0.08 
+  # Curvature flag 
+  curvFlag: False
+  # Curvature threshold 
+  curvThresh: 0.1
+  # Update seed point during growing 
+  updateFlag: True
+  # Update pointwise 
+  pointUpdateFlag: True
+  # If not pointwise, update every: 
+  updateInterval: 100
+planeshape:
+  # Angle difference allowed to horizontal (treads) or vertical (risers) plane
+  angleMargin: 30.0
+  # Width requirement
+  widthReqMin: 0.0
+  widthReqMax: 10.0
+  treadDepthMin: 0
+  treadDepthMax: 0.50
+  riserHeightMin: 0
+  riserHeightMax: 0.24
+recognition:
+  # graphMeth false for extended search - true for simple search
+  graphMeth: false
+  # use least-squared method to optimize parameters as post-processing
+  optimizeFlag: true
+  # Width requirement for the stairs
+  widthReqVecMin: 0.0
+  widthReqVecMax: 10.0
+  #Stair parts have to overlap in their width
+  widthFlag: true
+  # Check the angle between stair parts
+  parFlag: true
+  parAngle: 15.0
+  # Height distances
+  ndFlag: true
+  nDistanceMin: 0.11
+  nDistanceMax: 0.24
+  # Depth distances
+  pdFlag: true
+  pDistanceMin: 0.18
+  pDistanceMax: 0.50
+  # true for known floor - false for unknown (floor should be at z: 0.0)
+  floorInformation: false
+  # Update stair coefficients during graph extension - results are suboptimal - not recommended
+  updateFlag: false
+  # Extend the rail beyond the detected stairway
+  stairRailFlag: false
+  # Set if you want to find stairs with known parameters
+  predifinedValues: false
+  preDefDepth: 0
+  preDefHeight: 0
+  preDefWidth: 0

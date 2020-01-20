@@ -51,3 +51,30 @@ void StairVector::sort()
 {
 	std::sort(stairVector.begin(), stairVector.end());
 }
+
+void StairVector::getRiseCloud(PointCloudT& cloud)
+{
+	cloud.clear();
+	for(int stairCoeffIdx =0; stairCoeffIdx < stairVector.size(); stairCoeffIdx++)
+    {
+        cloud += stairVector.at(stairCoeffIdx).stairRiseCloud;
+    }
+}
+
+void StairVector::getTreadCloud(PointCloudT& cloud)
+{
+	cloud.clear();
+	for(int stairCoeffIdx =0; stairCoeffIdx < stairVector.size(); stairCoeffIdx++)
+    {
+        cloud += stairVector.at(stairCoeffIdx).stairTreadCloud;
+    }
+}
+
+void StairVector::getRailCloud(PointCloudT& cloud)
+{
+	cloud.clear();
+	for(int stairCoeffIdx =0; stairCoeffIdx < stairVector.size(); stairCoeffIdx++)
+    {
+        cloud += stairVector.at(stairCoeffIdx).stairRailCloud;
+    }
+}

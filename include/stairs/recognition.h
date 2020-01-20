@@ -15,6 +15,7 @@
 
 #include <pcl/visualization/pcl_visualizer.h>
 
+#include <yaml-cpp/yaml.h>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointNormal PointNT;
@@ -32,6 +33,8 @@ class recognition {
 public:
 
 	recognition();
+
+  void loadConfig(YAML::Node);
 
     regions segments;
 

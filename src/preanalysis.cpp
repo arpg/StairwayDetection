@@ -49,14 +49,18 @@ Preanalysis::Preanalysis()
 }
 
 
-void Preanalysis::run(PointCloudT::Ptr& input, NormalCloud::Ptr& normal, PointCloudC& colMap, PointCloudT& floorPoints)
+void Preanalysis::run(
+    PointCloudT::Ptr& input, 
+    NormalCloud::Ptr& normal, 
+    PointCloudC& colMap, 
+    PointCloudT& floorPoints, 
+    Eigen::Matrix4d& transformCloud
+    )
 {
 	pc.reset (new PointCloudT);
     inputCloud=input;
 
-    Eigen::Matrix4f transformCloud = Eigen::Matrix4f::Identity();
-
-    transformCloud(0,3) = 0;//-0.2;
+    // transformCloud(0,3) = 0;//-0.2;
     pcl::transformPointCloud (*inputCloud, *inputCloud, transformCloud);
 
     transformCloud(0,3) = 0;
@@ -65,7 +69,7 @@ void Preanalysis::run(PointCloudT::Ptr& input, NormalCloud::Ptr& normal, PointCl
     transformCloud(1,1) = cos(robAngle);
     transformCloud(0,1) = -sin(robAngle);
     transformCloud(1,0) = sin(robAngle);
-    pcl::transformPointCloud (*inputCloud, *inputCloud, transformCloud);
+    // pcl::transformPointCloud (*inputCloud, *inputCloud, transformCloud);
 
 
     if(dsFlag)
@@ -104,6 +108,45 @@ void Preanalysis::run(PointCloudT::Ptr& input, NormalCloud::Ptr& normal, PointCl
         point.b = abs(round(255*cbrt(normal->at(i_point).normal_z)));
         colMap.push_back(point);
     }
+}
+
+void Preanalysis::loadConfig(YAML::Node config)
+{
+    // Set if downsample active
+	dsFlag = config["dsFlag"].as<bool>();
+	// Set downsample resolution
+	dsResolution = config["dsResolution"].as<double>();
+	// Normal estimation - find N neareast neighbors (:=0) - find points within distance (:=1)
+	neNeighMethod = config["neNeighMethod"].as<int>();
+	neSearchNeighbours = config["neSearchNeighbours"].as<int>();
+	neSearchRadius = config["neSearchRadius"].as<double>();
+	// Ghost point filter active?
+	gpFlag = config["gpFlag"].as<bool>();
+	// Ghost point filter angle
+	gpAngle = config["gpAngle"].as<double>();
+	// Point normal filter active?
+	pfActive = config["pfActive"].as<bool>();
+	// Point normal filter angle
+	pfAngle = config["pfAngle"].as<double>();
+	// Floor seperation active?
+	fsActive = config["fsActive"].as<bool>();
+    // Floor seperation angle
+    fsAngle = config["fsAngle"].as<double>();
+    // Floor seperation distance
+    fsRange = config["fsRange"].as<double>();
+    // Set the position of the LIDAR (required for floor separation)
+    rob_x = config["rob_x"].as<double>();
+    rob_y = config["rob_y"].as<double>();
+    rob_z = config["rob_z"].as<double>();
+    // Rotate pointcloud around z-axis
+    robAngle = config["robAngle"].as<double>();
+	// Downsample method - Standard: flase - Experimental version: true
+	dsMethod = config["dsMethod"].as<bool>();
+    // Process ghost point filter and floor separation in separate steps
+	neMethod = config["neMethod"].as<int>();
+
+    inputCloud.reset (new PointCloudT);
+    normal_cloud.reset (new NormalCloud);
 }
 
 void Preanalysis::limitPC()

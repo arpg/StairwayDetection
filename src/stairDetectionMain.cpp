@@ -61,7 +61,8 @@ int main (int argc, char *argv[])
     PointCloudT floorPC;
     PointCloudC prepNorMap;
 
-    pre.run(mainCloud, prepNomalCloud, prepNorMap, floorPC);
+    Eigen::Matrix4d transformCloud = Eigen::Matrix4d::Identity();
+    pre.run(mainCloud, prepNomalCloud, prepNorMap, floorPC, transformCloud);
     double preAE = pcl::getTime();
     std::cout<<"Preanalysis took: "<<preAE-preAS<<std::endl;
 

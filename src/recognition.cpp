@@ -45,6 +45,40 @@ recognition::recognition()
 	preDefWidth = 0;
 }
 
+void recognition::loadConfig(YAML::Node config)
+{
+	// graphMeth false for extended search - true for simple search
+	graphMeth = config["graphMeth"].as<bool>();
+	// use least-squared method to optimize parameters as post-processing
+	optimizeFlag = config["optimizeFlag"].as<bool>();
+	// Width requirement for the stairs
+	widthReqVec << config["widthReqVecMin"].as<float>(),
+		config["widthReqVecMax"].as<float>();
+	//Stair parts have to overlap in their width
+	widthFlag = config["widthFlag"].as<bool>();
+	// Check the angle between stair parts
+	parFlag = config["parFlag"].as<bool>();
+	parAngle = cos(config["parAngle"].as<float>()/180*M_PI);
+	// Height distances
+	ndFlag = config["ndFlag"].as<bool>();
+	nDistance << config["nDistanceMin"].as<float>(),
+		config["nDistanceMax"].as<float>();;
+	// Depth distances
+	pdFlag = config["pdFlag"].as<bool>();
+	pDistance << config["pDistanceMin"].as<float>(),
+		config["pDistanceMax"].as<float>();
+	// true for known floor - false for unknown (floor should be at z = 0.0)
+	floorInformation = config["floorInformation"].as<bool>();
+	// Update stair coefficients during graph extension - results are suboptimal - not recommended
+	updateFlag = config["updateFlag"].as<bool>();
+	// Extend the rail beyond the detected stairway
+	stairRailFlag = config["stairRailFlag"].as<bool>();
+    // Set if you want to find stairs with known parameters
+    predifinedValues = config["predifinedValues"].as<bool>();
+    preDefDepth = config["preDefDepth"].as<double>();
+	preDefHeight = config["preDefHeight"].as<double>();
+	preDefWidth = config["preDefWidth"].as<double>();
+}
 
 void recognition::filter()
 {
@@ -100,149 +134,151 @@ void recognition::filter()
 
             if((firstPatch.segmentCentroid - secondPatch.segmentCentroid).norm() <1) // && firstPatch.segmentCentroid[2] < 2.5)
             {
-			Eigen::Vector3f dirVec;
+				Eigen::Vector3f dirVec;
 
-			// Check all 3 possible direction initializations //
-			for(int dirInit = 0; dirInit < 3; dirInit++)
-			{
+				// Check all 3 possible direction initializations //
+				for(int dirInit = 0; dirInit < 3; dirInit++)
+				{
 
-				if(dirInit == 0)
-					dirVec = firstPatch.segmentCoefficient.head(3);
-				else if(dirInit ==1)
-				{
-					dirVec = secondPatch.segmentCoefficient.head(3);
-				}
-				else if(dirInit ==2)
-				{
-					if(firstPatch.segmentCoefficient.head(2).dot(secondPatch.segmentCoefficient.head(2)) < 0)
+					if(dirInit == 0)
+						// normal of firstPatch
+						dirVec = firstPatch.segmentCoefficient.head(3);
+					else if(dirInit ==1)
 					{
-						dirVec.head(2) = secondPatch.segmentCoefficient.head(2) - firstPatch.segmentCoefficient.head(2);
+						// normal of secondPatch
+						dirVec = secondPatch.segmentCoefficient.head(3);
 					}
-					else
+					else if(dirInit ==2)
 					{
-						dirVec.head(2) = secondPatch.segmentCoefficient.head(2) + firstPatch.segmentCoefficient.head(2);
-					}
-				}
-
-				dirVec[2] = 0;
-				dirVec.normalize();
-
-				if((secondPatch.segmentCentroid.head(3) - firstPatch.segmentCentroid.head(3)).dot(dirVec) < 0)
-					dirVec *= -1;
-
-				// Check the horizontal distance between the planes //
-				float hDist = fabs((secondPatch.segmentCentroid - firstPatch.segmentCentroid).head(3).dot(dirVec));
-				if(hDist > pDistance[0] && hDist < pDistance[1] && ((firstPatch.segmentCentroid[2] > 0.1 && secondPatch.segmentCentroid[2] > 0.1) || (not(floorInformation))))
-				{
-					// Check the angle difference between the planes //
-//					float angleDifference = fabs(firstPatch.segmentCoefficient.head(2).dot(secondPatch.segmentCoefficient.head(2)));
-
-					Eigen::Vector2f firstNormal = firstPatch.segmentCoefficient.head(2);
-					firstNormal.normalize();
-					Eigen::Vector2f secondNormal = secondPatch.segmentCoefficient.head(2);
-					secondNormal.normalize();
-					float angleDifference = fabs(firstNormal.dot(secondNormal));
-
-					if(angleDifference > parAngle)
-					{
-						// Check vertical distance between the planes //
-						firstPatch.getHeight();
-						secondPatch.getHeight();
-						firstPatch.getMaxHeight();
-						secondPatch.getMaxHeight();
-
-						// Check all 3 possible height initializations //
-						for(int heightInitMode = 0; heightInitMode < 3; heightInitMode++)
+						if(firstPatch.segmentCoefficient.head(2).dot(secondPatch.segmentCoefficient.head(2)) < 0)
 						{
-							float vDist;
-							if(heightInitMode == 0)
-								vDist = (secondPatch.segmentCentroid[2] + secondPatch.height[1]) - (firstPatch.segmentCentroid[2] + firstPatch.height[1]);
-							else if(heightInitMode == 1)
-								vDist = (secondPatch.segmentCentroid[2] + secondPatch.height[0]) - (firstPatch.segmentCentroid[2] + firstPatch.height[0]);
-							else if(heightInitMode == 2)
-								vDist = (secondPatch.segmentCentroid[2]) - (firstPatch.segmentCentroid[2]);
+							dirVec.head(2) = secondPatch.segmentCoefficient.head(2) - firstPatch.segmentCoefficient.head(2);
+						}
+						else
+						{
+							dirVec.head(2) = secondPatch.segmentCoefficient.head(2) + firstPatch.segmentCoefficient.head(2);
+						}
+					}
 
-//							float overlap;
-//							if(vDist < 0)
-//								overlap = (firstPatch.segmentCentroid[2] + firstPatch.height[0]) - (secondPatch.segmentCentroid[2] + secondPatch.height[1]);
-//							else
-//								overlap = (secondPatch.segmentCentroid[2] + secondPatch.height[0]) - (firstPatch.segmentCentroid[2] + firstPatch.height[1]);
+					dirVec[2] = 0;
+					dirVec.normalize();
 
-							if(fabs(vDist) > nDistance[0] && fabs(vDist) < nDistance[1])// && overlap > -0.05)
+					if((secondPatch.segmentCentroid.head(3) - firstPatch.segmentCentroid.head(3)).dot(dirVec) < 0)
+						dirVec *= -1;
+
+					// Check the horizontal distance between the planes //
+					float hDist = fabs((secondPatch.segmentCentroid - firstPatch.segmentCentroid).head(3).dot(dirVec));
+					if(hDist > pDistance[0] && hDist < pDistance[1] && ((firstPatch.segmentCentroid[2] > 0.1 && secondPatch.segmentCentroid[2] > 0.1) || (not(floorInformation))))
+					{
+						// Check the angle difference between the planes //
+	//					float angleDifference = fabs(firstPatch.segmentCoefficient.head(2).dot(secondPatch.segmentCoefficient.head(2)));
+
+						Eigen::Vector2f firstNormal = firstPatch.segmentCoefficient.head(2);
+						firstNormal.normalize();
+						Eigen::Vector2f secondNormal = secondPatch.segmentCoefficient.head(2);
+						secondNormal.normalize();
+						float angleDifference = fabs(firstNormal.dot(secondNormal));
+
+						if(angleDifference > parAngle)
+						{
+							// Check vertical distance between the planes //
+							firstPatch.getHeight();
+							secondPatch.getHeight();
+							firstPatch.getMaxHeight();
+							secondPatch.getMaxHeight();
+
+							// Check all 3 possible height initializations //
+							for(int heightInitMode = 0; heightInitMode < 3; heightInitMode++)
 							{
-								if((secondPatch.segmentCentroid.head(3) - firstPatch.segmentCentroid.head(3)).dot(dirVec) < 0)
+								float vDist;
+								if(heightInitMode == 0)
+									vDist = (secondPatch.segmentCentroid[2] + secondPatch.height[1]) - (firstPatch.segmentCentroid[2] + firstPatch.height[1]);
+								else if(heightInitMode == 1)
+									vDist = (secondPatch.segmentCentroid[2] + secondPatch.height[0]) - (firstPatch.segmentCentroid[2] + firstPatch.height[0]);
+								else if(heightInitMode == 2)
+									vDist = (secondPatch.segmentCentroid[2]) - (firstPatch.segmentCentroid[2]);
+
+	//							float overlap;
+	//							if(vDist < 0)
+	//								overlap = (firstPatch.segmentCentroid[2] + firstPatch.height[0]) - (secondPatch.segmentCentroid[2] + secondPatch.height[1]);
+	//							else
+	//								overlap = (secondPatch.segmentCentroid[2] + secondPatch.height[0]) - (firstPatch.segmentCentroid[2] + firstPatch.height[1]);
+
+								if(fabs(vDist) > nDistance[0] && fabs(vDist) < nDistance[1])// && overlap > -0.05)
 								{
-									std::cout<<"???"<<std::endl;
-									dirVec *= -1;
-								}
-								distVec = dirVec;
-								if(vDist < 0)
-								{
-									distVec.head(2) = -distVec.head(2)*hDist;
-								}
-								else
-								{
-									distVec.head(2) = distVec.head(2)*hDist;
-								}
-
-								distVec[2] = fabs(vDist);
-
-								Eigen::Vector3f dirVecNorm = distVec;
-								dirVecNorm.normalize();
-
-								// Check the inlination //
-								if(dirVecNorm[2] < maxStairInc && dirVecNorm[2] > minStairInc)
-								{
-						        	stairTreads.clear();
-						        	stairRises.clear();
-						        	addedLabel.clear();
-
-									stairs.push_back(Stairs());
-
-									addedLabel.push_back(firstPatch.segmentLabel);
-									stairs.at(stairCount).stairRiseCloud+=firstPatch.segmentCloud;
-									stairs.at(stairCount).stairParts.push_back(firstPatch);
-									stairs.at(stairCount).stairRises.push_back(firstPatch);
-									stairs.at(stairCount).stairRises.at(stairs.at(stairCount).stairRises.size()-1).segmentLabel=0;
-									stairRises.push_back(firstPatch);
-									stairRises.at(stairRises.size()-1).segmentLabel=0;
-
-									startSearchPoint.head(2) = firstPatch.segmentCentroid.head(2);
-
-
-									if(heightInitMode == 0)
-										startSearchPoint[2] = firstPatch.segmentCentroid[2] + firstPatch.height[1];
-									else if(heightInitMode == 1)
-										startSearchPoint[2] = firstPatch.segmentCentroid[2] + firstPatch.height[0] + fabs(vDist);
-									else if(heightInitMode == 2)
-										startSearchPoint[2] = firstPatch.segmentCentroid[2] + fabs(vDist)/2;
-
-									if(predifinedValues)
+									if((secondPatch.segmentCentroid.head(3) - firstPatch.segmentCentroid.head(3)).dot(dirVec) < 0)
 									{
-										std::cout<<"Using pre defined values"<<std::endl;
-										double preDefFactor = preDefDepth / distVec.head(2).norm();
-										distVec.head(2)*=preDefFactor;
-										distVec[2] = preDefHeight;
+										std::cout<<"???"<<std::endl;
+										dirVec *= -1;
+									}
+									distVec = dirVec;
+									if(vDist < 0)
+									{
+										distVec.head(2) = -distVec.head(2)*hDist;
+									}
+									else
+									{
+										distVec.head(2) = distVec.head(2)*hDist;
 									}
 
-//									while(!checkSol.wasStopped())
-//									{
-//										checkSol.spinOnce();
-//									}
+									distVec[2] = fabs(vDist);
 
-									double exStart = pcl::getTime();
-									find();
-									double exEnd = pcl::getTime();
-									extendTime += exEnd - exStart;
-									double checkStart = pcl::getTime();
-									check();
-									double checkEnd = pcl::getTime();
-									checkTime += checkEnd - checkStart;
+									Eigen::Vector3f dirVecNorm = distVec;
+									dirVecNorm.normalize();
+
+									// Check the inlination //
+									if(dirVecNorm[2] < maxStairInc && dirVecNorm[2] > minStairInc)
+									{
+										stairTreads.clear();
+										stairRises.clear();
+										addedLabel.clear();
+
+										stairs.push_back(Stairs());
+
+										addedLabel.push_back(firstPatch.segmentLabel);
+										stairs.at(stairCount).stairRiseCloud+=firstPatch.segmentCloud;
+										stairs.at(stairCount).stairParts.push_back(firstPatch);
+										stairs.at(stairCount).stairRises.push_back(firstPatch);
+										stairs.at(stairCount).stairRises.at(stairs.at(stairCount).stairRises.size()-1).segmentLabel=0;
+										stairRises.push_back(firstPatch);
+										stairRises.at(stairRises.size()-1).segmentLabel=0;
+
+										startSearchPoint.head(2) = firstPatch.segmentCentroid.head(2);
+
+
+										if(heightInitMode == 0)
+											startSearchPoint[2] = firstPatch.segmentCentroid[2] + firstPatch.height[1];
+										else if(heightInitMode == 1)
+											startSearchPoint[2] = firstPatch.segmentCentroid[2] + firstPatch.height[0] + fabs(vDist);
+										else if(heightInitMode == 2)
+											startSearchPoint[2] = firstPatch.segmentCentroid[2] + fabs(vDist)/2;
+
+										if(predifinedValues)
+										{
+											std::cout<<"Using pre defined values"<<std::endl;
+											double preDefFactor = preDefDepth / distVec.head(2).norm();
+											distVec.head(2)*=preDefFactor;
+											distVec[2] = preDefHeight;
+										}
+
+	//									while(!checkSol.wasStopped())
+	//									{
+	//										checkSol.spinOnce();
+	//									}
+
+										double exStart = pcl::getTime();
+										find();
+										double exEnd = pcl::getTime();
+										extendTime += exEnd - exStart;
+										double checkStart = pcl::getTime();
+										check();
+										double checkEnd = pcl::getTime();
+										checkTime += checkEnd - checkStart;
+									}
 								}
 							}
 						}
 					}
-				}
 				}
 			}
         }
@@ -411,6 +447,7 @@ void recognition::run(StairVector& output)
     maxStairTreadDist = 0.05;
     maxStairRiseAngle = cos(30/180*M_PI);
 
+	// 
 	filter();
 
 //    std::cout<<"Looking for circular stairways"<<std::endl;

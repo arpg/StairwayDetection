@@ -2,31 +2,31 @@
 
 RegionGrowing::RegionGrowing()
 {
-	// Minimum cluster size
+// Minimum cluster size //
 	minClustSize = 30;
-	// Number of neighbors
+// Number of neighbors //
 	noNeigh = 24;
-	// Smoothness flag (true = compare to seed point; false = compare to neighboring point)
+// Smoothness flag (true = compare to seed point; false = compare to neighboring point) //
 	smoothFlag = true;
-	// Smoothness threshold
+// Smoothness threshold //
 	smoothThresh = 30.0; // for RGB-D data
 	// smoothThresh = 20.0; // for LIDAR data
-	// Residual flag (true = compare to seed point; false = compare to neighboring point)
+// Residual flag (true = compare to seed point; false = compare to neighboring point) //
 	resFlag = true;
-	// Residual distance
+// Residual distance //
 	resThresh = 0.08; // for RGB-D data
 	// resThresh = 0.02; // for LIDAR data
-	// Curvature flag
+// Curvature flag //
 	curvFlag = false;
-	// Curvature threshold
+// Curvature threshold //
 	curvThresh = 0.1; // for RGB-D data
-	//curvThresh = 0.048; // for LIDAR data
+	// curvThresh = 0.048; // for LIDAR data
 
-	// Update seed point during growing
+// Update seed point during growing //
 	updateFlag = true;
-	// Update pointwise
+// Update pointwise //
 	pointUpdateFlag = true;
-	// If not pointwise, update every:
+// If not pointwise, update every: //
 	updateInterval = 100;
 }
 
@@ -93,5 +93,31 @@ void RegionGrowing::run(regions& output)
     }
     output.getExtensions();
 //    output = segmentList;
+}
+
+void RegionGrowing::loadConfig(YAML::Node config)
+{
+    // Minimum cluster size //
+	minClustSize = config["minClustSize"].as<int>();
+    // Number of neighbors //
+	noNeigh = config["noNeigh"].as<int>();
+    // Smoothness flag (true = compare to seed point; false = compare to neighboring point) //
+	smoothFlag = config["smoothFlag"].as<bool>();
+    // Smoothness threshold //
+	smoothThresh = config["smoothThresh"].as<double>(); 
+    // Residual flag (true = compare to seed point; false = compare to neighboring point) //
+	resFlag = config["resFlag"].as<bool>();
+    // Residual distance //
+	resThresh = config["resThresh"].as<double>();
+    // Curvature flag //
+	curvFlag = config["curvFlag"].as<bool>();
+    // Curvature threshold //
+	curvThresh = config["curvThresh"].as<double>(); 
+    // Update seed point during growing //
+	updateFlag = config["updateFlag"].as<bool>();
+    // Update pointwise //
+	pointUpdateFlag = config["pointUpdateFlag"].as<bool>();
+    // If not pointwise, update every: //
+	updateInterval = config["updateInterval"].as<int>();
 }
 

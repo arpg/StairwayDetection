@@ -10,6 +10,19 @@ planeshape::planeshape()
 	riserHeight << 0,0.24;
 }
 
+void planeshape::loadConfig(YAML::Node config)
+{
+    // Angle difference allowed to horizontal (treads) or vertical (risers) plane
+	angleMargin = config["angleMargin"].as<float>();
+	// Width requirement
+	widthReq << config["widthReqMin"].as<float>(),
+        config["widthReqMax"].as<float>();
+	treadDepth << config["treadDepthMin"].as<float>(),
+        config["treadDepthMax"].as<float>();
+	riserHeight << config["riserHeightMin"].as<float>(),
+        config["riserHeightMax"].as<float>();
+}
+
 void planeshape::filterSc(regions& stairTreads, regions& stairRisers)
 {
 	stairTreads.clear();

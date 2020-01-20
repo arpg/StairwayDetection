@@ -7,6 +7,7 @@
 #include <stairs/region_growing.h>
 
 #include <stairs/regions.h>
+#include <yaml-cpp/yaml.h>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointNormal PointNT;
@@ -100,6 +101,8 @@ public:
     void run(regions& output);
 //    void analyzePrimitives();
 //    void filter(regions& segmentListFilt);
+
+    void loadConfig(YAML::Node);
 
     inline void setInputCloud(PointCloudT::Ptr input)
     {

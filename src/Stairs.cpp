@@ -62,6 +62,42 @@ void Stairs::getColoredParts(PointCloudC& output)
 	}
 }
 
+// void Stairs::getRiseClouds(PointCloudT& output)
+// {
+// 	PointT colPoint;
+// 	for(int pointIdx = 0; pointIdx < stairRiseCloud.size(); pointIdx++)
+// 	{
+// 		colPoint.x = stairRiseCloud[pointIdx].x;
+// 		colPoint.y = stairRiseCloud[pointIdx].y;
+// 		colPoint.z = stairRiseCloud[pointIdx].z;
+// 		output.push_back(colPoint);
+// 	}
+// }
+
+// void Stairs::getTreadClouds(PointCloudT& output)
+// {
+// 	PointT colPoint;
+// 	for(int pointIdx = 0; pointIdx < stairTreadCloud.size(); pointIdx++)
+// 	{
+// 		colPoint.x = stairTreadCloud[pointIdx].x;
+// 		colPoint.y = stairTreadCloud[pointIdx].y;
+// 		colPoint.z = stairTreadCloud[pointIdx].z;
+// 		output.push_back(colPoint);
+// 	}
+// }
+
+// void Stairs::getRailClouds(PointCloudT& output)
+// {
+// 	PointT colPoint;
+// 	for(int pointIdx = 0; pointIdx < stairRailCloud.size(); pointIdx++)
+// 	{
+// 		colPoint.x = stairRailCloud[pointIdx].x;
+// 		colPoint.y = stairRailCloud[pointIdx].y;
+// 		colPoint.z = stairRailCloud[pointIdx].z;
+// 		output.push_back(colPoint);
+// 	}
+// }
+
 std::ostream& operator<<(std::ostream& os, Stairs& sc) {
 	os << "Stair Position: "<<sc.pos[0]<<"   "<<sc.pos[1]<<"   "<<sc.pos[2]<<std::endl;
 	os << "Stair Direction: "<<sc.dir[0]<<"   "<<sc.dir[1]<<"   "<<sc.dir[2]<<std::endl;

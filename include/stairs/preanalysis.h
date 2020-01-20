@@ -1,6 +1,8 @@
 #ifndef PREANALYSIS_H
 #define PREANALYSIS_H
 
+#include <yaml-cpp/yaml.h>
+
 #include <pcl/octree/octree.h>
 #include <pcl/octree/octree_iterator.h>
 #include <pcl/filters/extract_indices.h>
@@ -42,7 +44,9 @@ public:
     void normalEstimation();
     void ghostPointFilter();
     void floorExtraction();
-    void run(PointCloudT::Ptr& input, NormalCloud::Ptr& normal, PointCloudC& colMap, PointCloudT& floorPoints);
+    void run(PointCloudT::Ptr& input, NormalCloud::Ptr& normal, PointCloudC& colMap, PointCloudT& floorPoints, Eigen::Matrix4d& transformCloud);
+
+    void loadConfig(YAML::Node);
 
     inline
     void setDsResolution(double resolution)
