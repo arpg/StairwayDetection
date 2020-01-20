@@ -62,10 +62,6 @@ public:
     regions getAllRegions();
     PointCloudC getColoredCloud(int pos = 0);
     PointCloudC getColoredParts(int pos = 0);
-
-	void getRiseCloud(PointCloudT&);
-	void getTreadCloud(PointCloudT&);
-	void getRailCloud(PointCloudT&);
 };
 
 #endif /* STAIRVECTOR_H_ */
