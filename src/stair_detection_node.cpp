@@ -171,12 +171,12 @@ inline void pubRegions(ros::Publisher* pub, regions segments)
     cloud_msg.lifetime = ros::Duration(0.0);
     for(uint j=0; j<segments.size(); j++)
     {
+        RGBColor color = getRGBColor((float)(j)/(float)(segments.size())); // +1 to prevent black
+
         PointCloudT cloud = segments.at(j).segmentCloud;
         for(uint i=0; i<cloud.size(); i++)
         {
             PointT pt = cloud.points[i];
-            RGBColor color = getRGBColor((double)i/(double)cloud.size());
-
             geometry_msgs::Point pt_msg;
             pt_msg.x = pt.x;
             pt_msg.y = pt.y;
@@ -184,9 +184,9 @@ inline void pubRegions(ros::Publisher* pub, regions segments)
             cloud_msg.points.push_back(pt_msg);
 
             std_msgs::ColorRGBA rgb_msg;
-            rgb_msg.r = color.r/255.0;
-            rgb_msg.g = color.g/255.0;
-            rgb_msg.b = color.b/255.0;
+            rgb_msg.r = (float)(color.r)/255.0;
+            rgb_msg.g = (float)(color.g)/255.0;
+            rgb_msg.b = (float)(color.b)/255.0;
             rgb_msg.a = 1.0;
             cloud_msg.colors.push_back(rgb_msg);
         }
@@ -324,10 +324,10 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
 
 // histogram based stair detection/prediction
 
-    prediction pred;
-    pred.setTreadRegions(stairTreads);
-    pred.setRiseRegions(stairRisers);
-    pred.run();
+    // prediction pred;
+    // pred.setTreadRegions(stairTreads);
+    // pred.setRiseRegions(stairRisers);
+    // pred.run();
 
 // Starting graph-based stair detection //
 
@@ -429,6 +429,13 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
 
     if(detectedStairs.size()>0)
     {
+        for(int stairCoeffIdx =0; stairCoeffIdx < detectedStairs.size(); stairCoeffIdx++)
+		{
+			Stairs stairCoefficients = detectedStairs.at(stairCoeffIdx);
+            regions stairParts = stairCoefficients.stairParts;
+            std::vector<int> planeLabels = stairCoefficients.planeLabels;
+            ROS_INFO(stairCoefficients.str().c_str());
+        }
         pubCCloud(&seg_stairs_pub,resultCloud);
     } // if(detectedStairs.size()>0)
 
