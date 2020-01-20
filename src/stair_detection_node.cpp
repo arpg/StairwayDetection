@@ -350,16 +350,9 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
     ROS_INFO("Refinement took: %f",refE-refS);
     ROS_INFO("Total time  took: %f",refE-loadS);
 
-
-    {   PointCloudT cloudToPub;
-        detectedStairs.getRiseCloud(cloudToPub);
-        pubTCloud(&rise_cloud_pub,cloudToPub);  }
-    {   PointCloudT cloudToPub;
-        detectedStairs.getTreadCloud(cloudToPub);
-        pubTCloud(&tread_cloud_pub,cloudToPub);  }
-    {   PointCloudT cloudToPub;
-        detectedStairs.getRailCloud(cloudToPub);
-        pubTCloud(&rail_cloud_pub,cloudToPub);  }
+    pubTCloud(&rise_cloud_pub,detectedStairs.at(0).stairRiseCloud); 
+    pubTCloud(&tread_cloud_pub,detectedStairs.at(0).stairTreadCloud);
+    pubTCloud(&rail_cloud_pub,detectedStairs.at(0).stairRailCloud); 
 
 // Printing out the results //
 
