@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project(stair_detection)
 
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a")
+
 find_package(PCL 1.8 REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(catkin REQUIRED
@@ -83,7 +85,7 @@ add_executable( stair_detection_node
   src/Stairs.cpp 
   src/StairVector.cpp 
   src/recognition.cpp
-  src/prediction.cpp
+  #src/prediction.cpp
 )
 target_link_libraries( stair_detection_node
   ${catkin_LIBRARIES}
