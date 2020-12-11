@@ -1,9 +1,13 @@
 <launch>
 
+    <arg name="enable_debug" default="false"/>
+    <arg name="launch_prefix" default="" unless="$(arg enable_debug)"/>
+    <arg name="launch_prefix" default="gdb -ex run --args" if="$(arg enable_debug)"/>
+
     <arg name="config_filepath" default="/home/mike/catkin_ws/src/StairwayDetection/config.yaml"/>
     <arg name="input_cloud_topic" default="cloud"/>
     
-    <node pkg="stair_detection" type="stair_detection_node" name="stair_detector" output="screen"
+    <node pkg="stair_detection" type="stair_detection_node" name="stair_detector" output="screen" launch-prefix="$(arg launch_prefix)"
     args=" $(arg config_filepath)">
         <remap from="input_cloud" to="$(arg input_cloud_topic)"/>
     </node>

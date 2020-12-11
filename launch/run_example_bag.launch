@@ -1,4 +1,5 @@
 <launch>
+    <arg name="enable_debug" default="false"/>
     <arg name="M_PI" value="3.14159265"/>
 
     <arg name="fixed_frame_id" default="base_link"/>
@@ -34,6 +35,7 @@
         args=" -d $(env HOME)/.rviz/stair_detection.rviz"/> -->
 
     <include file="$(find stair_detection)/launch/run_stair_detection.launch">
+        <arg name="enable_debug" value="$(arg enable_debug)"/>
     </include>
 
 </launch>

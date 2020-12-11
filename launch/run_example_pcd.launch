@@ -1,4 +1,5 @@
 <launch>
+    <arg name="enable_debug" default="false"/>
     <arg name="M_PI" value="3.14159265"/>
 
     <arg name="fixed_frame_id" default="base_link"/>
@@ -24,6 +25,7 @@
     args="$(arg origin) $(arg fixed_frame_id) $(arg child_frame_id)"/>
 
     <include file="$(find stair_detection)/launch/run_stair_detection.launch">
+        <arg name="enable_debug" value="$(arg enable_debug)"/>
     </include>
 
 </launch>

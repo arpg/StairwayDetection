@@ -1,5 +1,5 @@
 ros:
-  parent_frame_id: base_link
+  fixed_frame_id: base_link
 preanalysis:
   # Set if downsample active
   dsFlag: True
@@ -12,7 +12,9 @@ preanalysis:
   # Ghost point filter active?
   gpFlag: True
   # Ghost point filter angle in degress
-  gpAngle: 25.0
+  # gpAngle: 10.0
+  # gpAngle: 25.0
+  gpAngle: 45.0
   # Point normal filter active?
   pfActive: False
   # Point normal filter angle in degress
@@ -41,7 +43,7 @@ regiongrowing:
   # Smoothness flag (true: compare to seed point false: compare to neighboring point) 
   smoothFlag: True
   # Smoothness threshold 
-  smoothThresh: 30.0 
+  smoothThresh: 50.0 
   # Residual flag (true: compare to seed point false: compare to neighboring point) 
   resFlag: True
   # Residual distance 
@@ -74,14 +76,14 @@ recognition:
   # Width requirement for the stairs
   widthReqVecMin: 0.0
   widthReqVecMax: 10.0
-  #Stair parts have to overlap in their width
+  # Stair parts have to overlap in their width
   widthFlag: true
   # Check the angle between stair parts
   parFlag: true
   parAngle: 15.0
   # Height distances
   ndFlag: true
-  nDistanceMin: 0.11
+  nDistanceMin: 0.05
   nDistanceMax: 0.24
   # Depth distances
   pdFlag: true
@@ -98,3 +100,11 @@ recognition:
   preDefDepth: 0
   preDefHeight: 0
   preDefWidth: 0
+  # stair distances
+  maxStairRiseDist: 0.05
+  maxStairRiseHDist: 0.05
+  maxStairTreadDist: 0.05
+  maxStairRiseAngle: 30.0
+  # filter params
+  minStairIncAngle: 10.0
+  maxStairIncAngle: 50.0
