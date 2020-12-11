@@ -336,11 +336,11 @@ Visualization Manager:
       Marker Topic: /segmented_stairs
       Name: resultCloud
       Namespaces:
-        "": true
+        {}
       Queue Size: 1
       Value: true
     - Class: rviz/Image
-      Enabled: true
+      Enabled: false
       Image Topic: /S24/camera_fwd/color/image_raw
       Max Value: 1
       Median window: 5
@@ -350,9 +350,9 @@ Visualization Manager:
       Queue Size: 2
       Transport Hint: raw
       Unreliable: false
-      Value: true
+      Value: false
     - Class: rviz/Image
-      Enabled: false
+      Enabled: true
       Image Topic: /S24/camera_low/color/image_raw
       Max Value: 1
       Median window: 5
@@ -362,7 +362,7 @@ Visualization Manager:
       Queue Size: 2
       Transport Hint: raw
       Unreliable: false
-      Value: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -406,10 +406,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4997981786727905
+      Pitch: 0.4647982716560364
       Target Frame: world
       Value: ThirdPersonFollower (rviz)
-      Yaw: 4.670441150665283
+      Yaw: 3.7104387283325195
     Saved: ~
 Window Geometry:
   Displays:
