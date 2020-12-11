@@ -1,0 +1,39 @@
+<launch>
+    <arg name="M_PI" value="3.14159265"/>
+
+    <arg name="fixed_frame_id" default="base_link"/>
+
+<!-- stairs_descent_ECESAtrium -->
+    <arg name="filepath" default="/home/mike/code_files/marble/bagfiles/stairs_2020-01-13-17-14-07_combined_trimmed.bag"/>
+    <node pkg="topic_tools" type="relay" name="cloud_relay"
+        args=" /S24/camera_low/depth/color/points cloud" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="TBase"
+    args="0 0 0 0 .5 0 $(arg fixed_frame_id) camera_low"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="TOpticalFrame"
+    args="0 0 0 -1.57 0 -1.57 camera_low camera_low_depth_optical_frame"/>
+
+<!-- stairs_ascent_ECESDock_ouster -->
+    <!-- <arg name="filepath" default="/home/mike/code_files/marble/bagfiles/ouster_stairs/second_2020-02-11-18-06-55.bag"/>
+    <node pkg="topic_tools" type="relay" name="cloud_relay"
+        args=" /L01/vert_os1_cloud_node/points cloud" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="TBase"
+    args="0 0 0 3.14 0 -1.57 $(arg fixed_frame_id) /vert_os1_lidar"/> -->
+
+<!-- stairs_descent_ECESDock_ouster -->
+    <!-- <arg name="filepath" default="/home/mike/code_files/marble/bagfiles/ouster_stairs/first_2020-02-11-18-08-46_trimmed.bag"/>
+    <node pkg="topic_tools" type="relay" name="cloud_relay"
+        args=" /L01/vert_os1_cloud_node/points cloud" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="TBase"
+    args="0 0 0 3.14 0 -1.57 $(arg fixed_frame_id) /vert_os1_lidar"/> -->
+
+<!-- STAIRS PUBLISHER -->
+    <node pkg="rosbag" type="play" name="bag_player" output="log"
+    args=" $(arg filepath) -l"/>
+
+    <!-- <node pkg="rviz" type="rviz" name="rviz_stairs" output="screen"
+        args=" -d $(env HOME)/.rviz/stair_detection.rviz"/> -->
+
+    <include file="$(find stair_detection)/launch/run_stair_detection.launch">
+    </include>
+
+</launch>

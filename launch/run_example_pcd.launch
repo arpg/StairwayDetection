@@ -1,0 +1,29 @@
+<launch>
+    <arg name="M_PI" value="3.14159265"/>
+
+    <arg name="fixed_frame_id" default="base_link"/>
+    <arg name="child_frame_id" default="lidar"/>
+    
+<!-- 13_Depth example -->
+    <arg name="filepath" default="/home/mike/catkin_ws/src/StairwayDetection/examples/13_Depth.pcd"/>
+    <arg name="origin" default="0 0 0 0 0 0"/>
+
+<!-- stairs_descent_ECESAtrium_close -->
+    <!-- <arg name="filepath" default="/home/mike/code_files/marble/pcds/stairs_descent_ECESAtrium_close.pcd"/>
+    <arg name="origin" default="0 0 0 0 0 -2.4"/> -->
+
+<!-- stairs_descent_ECESAtrium_far -->
+    <!-- <arg name="filepath" default="/home/mike/code_files/marble/pcds/stairs_descent_ECESAtrium_far.pcd"/>
+    <arg name="origin" default="0 0 0 0 0 -2.1"/> -->
+
+<!-- STAIRS PUBLISHER -->
+    <node pkg="stair_detection" type="example_stairs_publisher" name="stairs_publisher" output="screen"
+    args="$(arg filepath) $(arg child_frame_id)"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="TStair"
+    args="$(arg origin) $(arg fixed_frame_id) $(arg child_frame_id)"/>
+
+    <include file="$(find stair_detection)/launch/run_stair_detection.launch">
+    </include>
+
+</launch>
