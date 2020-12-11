@@ -11,7 +11,7 @@
 #include <stairs/planeshape.h>
 #include <stairs/recognition.h>
 #include <stairs/StairVector.h>
-#include <stairs/prediction.h>
+// #include <stairs/prediction.h>
 
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
