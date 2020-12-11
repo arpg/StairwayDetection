@@ -43,6 +43,10 @@ recognition::recognition()
     preDefDepth = 0;
 	preDefHeight = 0;
 	preDefWidth = 0;
+
+	// filter params
+	minStairInc = sin(10.0/180.0*M_PI);
+	maxStairInc = sin(50.0/180.0*M_PI);
 }
 
 void recognition::loadConfig(YAML::Node config)
@@ -78,6 +82,14 @@ void recognition::loadConfig(YAML::Node config)
     preDefDepth = config["preDefDepth"].as<double>();
 	preDefHeight = config["preDefHeight"].as<double>();
 	preDefWidth = config["preDefWidth"].as<double>();
+	// stair distances (originally under run()
+    maxStairRiseDist = config["maxStairRiseDist"].as<float>();
+    maxStairRiseHDist = config["maxStairRiseHDist"].as<float>();
+    maxStairTreadDist = config["maxStairTreadDist"].as<float>();
+    maxStairRiseAngle = cos(config["maxStairRiseAngle"].as<float>()/180*M_PI);
+	// filter params
+	minStairInc = sin(config["minStairIncAngle"].as<float>()/180.0*M_PI);
+	maxStairInc = sin(config["maxStairIncAngle"].as<float>()/180.0*M_PI);
 }
 
 void recognition::filter()
@@ -103,10 +115,12 @@ void recognition::filter()
 	sortTime = 0;
 	getWTime = 0;
 
+	// see loadConfig()
+	// float minStairInc = sin(10.0/180.0*M_PI);
+	// float maxStairInc = sin(50.0/180.0*M_PI);
+
 	globalAddedLabel.clear();
 	stairCount = 0;
-	float minStairInc = sin(10.0/180.0*M_PI);
-	float maxStairInc = sin(50.0/180.0*M_PI);
 
 	basePart = 0;
     for(int firstSeg=0; firstSeg<stairRiseRegions.size()-1; firstSeg++)
@@ -129,9 +143,9 @@ void recognition::filter()
         			continue;
         		}
         	}
+
             segmentPatch firstPatch = stairRiseRegions.at(firstSeg);
             segmentPatch secondPatch = stairRiseRegions.at(secondSeg);
-
             if((firstPatch.segmentCentroid - secondPatch.segmentCentroid).norm() <1) // && firstPatch.segmentCentroid[2] < 2.5)
             {
 				Eigen::Vector3f dirVec;
@@ -303,121 +317,120 @@ void recognition::filter()
         			continue;
         		}
         	}
+
             segmentPatch firstPatch = stairTreadRegions.at(firstSeg);
             segmentPatch secondPatch = stairTreadRegions.at(secondSeg);
         	if(true || firstPatch.segmentCentroid[2] < 2.5)
         	{
-            // Check vertical distance //
-            float vDist = secondPatch.segmentCentroid[2] - firstPatch.segmentCentroid[2];
-            if(fabs(vDist) > nDistance[0] && fabs(vDist) < nDistance[1] && ((firstPatch.segmentCentroid[2] > 0.1 && secondPatch.segmentCentroid[2] > 0.1) || (not(floorInformation))))
-            {
-
-
-            	// Check all 3 possible direction initializations //
-            	for(int dirInit = 0; dirInit < 3; dirInit++)
-            	{
-
-            		if(fabs(firstPatch.segmentCoefficient[2]*secondPatch.segmentCoefficient[2]) > parAngle)
-            		{
-						if(dirInit == 0)
+				// Check vertical distance //
+				float vDist = secondPatch.segmentCentroid[2] - firstPatch.segmentCentroid[2];
+				if(fabs(vDist) > nDistance[0] && fabs(vDist) < nDistance[1] && ((firstPatch.segmentCentroid[2] > 0.1 && secondPatch.segmentCentroid[2] > 0.1) || (not(floorInformation))))
+				{
+					// Check all 3 possible direction initializations //
+					for(int dirInit = 0; dirInit < 3; dirInit++)
+					{
+						if(fabs(firstPatch.segmentCoefficient[2]*secondPatch.segmentCoefficient[2]) > parAngle)
 						{
-							distVec = firstPatch.eigen_vectors.col(1);
-						}
-						if(dirInit==1)
-						{
-							distVec = secondPatch.eigen_vectors.col(1);
-						}
-						if(dirInit==2)
-						{
-							distVec = secondPatch.segmentCentroid.head(3) - firstPatch.segmentCentroid.head(3);
-						}
-
-						if(distVec.dot(secondPatch.segmentCentroid.head(3) - firstPatch.segmentCentroid.head(3))<0)
-							distVec *= -1;
-
-						distVec[2] = 0;
-						distVec.normalize();
-
-						if(vDist<0)
-							distVec *= -1;
-
-						firstPatch.getTreadDepth(distVec);
-						secondPatch.getTreadDepth(distVec);
-
-						// Check all 3 possible depth initializations //
-						for(int depthInitMode = 0; depthInitMode < 3; depthInitMode++)
-						{
-							float hDist;
-							if(depthInitMode == 0)
-								hDist = fabs(distVec.head(2).dot((secondPatch.segmentCentroid.head(2) + secondPatch.depth[1]*distVec.head(2)) - (firstPatch.segmentCentroid.head(2) + firstPatch.depth[1]*distVec.head(2))));
-							if(depthInitMode == 1)
-								hDist = fabs(distVec.head(2).dot((secondPatch.segmentCentroid.head(2) + secondPatch.depth[0]*distVec.head(2)) - (firstPatch.segmentCentroid.head(2) + firstPatch.depth[0]*distVec.head(2))));
-							if(depthInitMode == 2)
-								hDist = fabs(distVec.head(2).dot(secondPatch.segmentCentroid.head(2) - firstPatch.segmentCentroid.head(2)));
-
-							if(hDist > pDistance[0] && hDist < pDistance[1])
+							if(dirInit == 0)
 							{
+								distVec = firstPatch.eigen_vectors.col(1);
+							}
+							if(dirInit==1)
+							{
+								distVec = secondPatch.eigen_vectors.col(1);
+							}
+							if(dirInit==2)
+							{
+								distVec = secondPatch.segmentCentroid.head(3) - firstPatch.segmentCentroid.head(3);
+							}
 
-								distVec *= hDist;
-								distVec[2] = fabs(vDist);
+							if(distVec.dot(secondPatch.segmentCentroid.head(3) - firstPatch.segmentCentroid.head(3))<0)
+								distVec *= -1;
 
-								Eigen::Vector3f dirVecNorm = distVec;
-								dirVecNorm.normalize();
+							distVec[2] = 0;
+							distVec.normalize();
 
-								// Check the inlination //
-								if(dirVecNorm[2] < maxStairInc && dirVecNorm[2] > minStairInc)
+							if(vDist<0)
+								distVec *= -1;
+
+							firstPatch.getTreadDepth(distVec);
+							secondPatch.getTreadDepth(distVec);
+
+							// Check all 3 possible depth initializations //
+							for(int depthInitMode = 0; depthInitMode < 3; depthInitMode++)
+							{
+								float hDist;
+								if(depthInitMode == 0)
+									hDist = fabs(distVec.head(2).dot((secondPatch.segmentCentroid.head(2) + secondPatch.depth[1]*distVec.head(2)) - (firstPatch.segmentCentroid.head(2) + firstPatch.depth[1]*distVec.head(2))));
+								if(depthInitMode == 1)
+									hDist = fabs(distVec.head(2).dot((secondPatch.segmentCentroid.head(2) + secondPatch.depth[0]*distVec.head(2)) - (firstPatch.segmentCentroid.head(2) + firstPatch.depth[0]*distVec.head(2))));
+								if(depthInitMode == 2)
+									hDist = fabs(distVec.head(2).dot(secondPatch.segmentCentroid.head(2) - firstPatch.segmentCentroid.head(2)));
+
+								// Check horizontal distance //
+								if(hDist > pDistance[0] && hDist < pDistance[1])
 								{
-				                	stairTreads.clear();
-				                	stairRises.clear();
-				                	addedLabel.clear();
 
-									addedLabel.push_back(firstPatch.segmentLabel);
+									distVec *= hDist;
+									distVec[2] = fabs(vDist);
 
-									stairs.push_back(Stairs());
+									Eigen::Vector3f dirVecNorm = distVec;
+									dirVecNorm.normalize();
 
-									stairs.at(stairCount).stairParts.push_back(firstPatch);
-									stairs.at(stairCount).stairTreadCloud+=firstPatch.segmentCloud;
-									stairs.at(stairCount).stairTreads.push_back(firstPatch);
-									stairs.at(stairCount).stairTreads.at(stairs.at(stairCount).stairTreads.size()-1).segmentLabel=0;
-									stairTreads.push_back(firstPatch);
-									stairTreads.at(stairTreads.size()-1).segmentLabel=0;
-
-									if(depthInitMode == 0)
+									// Check the inlination //
+									if(dirVecNorm[2] < maxStairInc && dirVecNorm[2] > minStairInc)
 									{
+										stairTreads.clear();
+										stairRises.clear();
+										addedLabel.clear();
+
+										addedLabel.push_back(firstPatch.segmentLabel);
+
+										stairs.push_back(Stairs());
+
+										stairs.at(stairCount).stairParts.push_back(firstPatch);
+										stairs.at(stairCount).stairTreadCloud+=firstPatch.segmentCloud;
+										stairs.at(stairCount).stairTreads.push_back(firstPatch);
+										stairs.at(stairCount).stairTreads.at(stairs.at(stairCount).stairTreads.size()-1).segmentLabel=0;
+										stairTreads.push_back(firstPatch);
+										stairTreads.at(stairTreads.size()-1).segmentLabel=0;
+
+										if(depthInitMode == 0)
+										{
 											startSearchPoint.head(2) = firstPatch.segmentCentroid.head(2) + (-hDist + firstPatch.depth[1])*distVec.head(2);
 
-									}
-									if(depthInitMode == 1)
-									{
-										startSearchPoint.head(2) = firstPatch.segmentCentroid.head(2) + firstPatch.depth[0]*distVec.head(2);
-									}
-									else
-									{
-										startSearchPoint.head(2) = firstPatch.segmentCentroid.head(2) - (hDist/2)*distVec.head(2);
-									}
-									startSearchPoint[2] = firstPatch.segmentCentroid[2];
+										}
+										if(depthInitMode == 1)
+										{
+											startSearchPoint.head(2) = firstPatch.segmentCentroid.head(2) + firstPatch.depth[0]*distVec.head(2);
+										}
+										else
+										{
+											startSearchPoint.head(2) = firstPatch.segmentCentroid.head(2) - (hDist/2)*distVec.head(2);
+										}
+										startSearchPoint[2] = firstPatch.segmentCentroid[2];
 
-									if(predifinedValues)
-									{
-										double preDefFactor = preDefDepth / distVec.head(2).norm();
-										distVec.head(2)*=preDefFactor;
-										distVec[2] = preDefHeight;
-									}
+										if(predifinedValues)
+										{
+											double preDefFactor = preDefDepth / distVec.head(2).norm();
+											distVec.head(2)*=preDefFactor;
+											distVec[2] = preDefHeight;
+										}
 
-									double exStart = pcl::getTime();
-									find();
-									double exEnd = pcl::getTime();
-									extendTime += exEnd - exStart;
-									double checkStart = pcl::getTime();
-									check();
-									double checkEnd = pcl::getTime();
-									checkTime += checkEnd - checkStart;
+										double exStart = pcl::getTime();
+										find();
+										double exEnd = pcl::getTime();
+										extendTime += exEnd - exStart;
+										double checkStart = pcl::getTime();
+										check();
+										double checkEnd = pcl::getTime();
+										checkTime += checkEnd - checkStart;
+									}
 								}
 							}
 						}
-                    }
-            	}
-            }
+					}
+				}
             }
         }
     }
@@ -442,12 +455,13 @@ void recognition::run(StairVector& output)
 
     stairs.clear();
 
-    maxStairRiseDist = 0.05;
-    maxStairRiseHDist = 0.05;
-    maxStairTreadDist = 0.05;
-    maxStairRiseAngle = cos(30/180*M_PI);
+	// see loadConfig()
+    // maxStairRiseDist = 0.05;
+    // maxStairRiseHDist = 0.05;
+    // maxStairTreadDist = 0.05;
+    // maxStairRiseAngle = cos(30/180*M_PI);
 
-	// 
+	//
 	filter();
 
 //    std::cout<<"Looking for circular stairways"<<std::endl;
@@ -464,6 +478,7 @@ void recognition::run(StairVector& output)
 	StairVector stairSolution;
 	if(difSolsOnly && graphMeth != true)
 	{
+		// simple search 
 		for(int stairIdx = 0; stairIdx < stairs.size()-1; stairIdx++)
 		{
 			delIDXIter = delIDX.find(stairIdx);
@@ -499,6 +514,7 @@ void recognition::run(StairVector& output)
 	}
 	else
 	{
+		// extended search
 		for(int stairIdx = 0; stairIdx < stairs.size(); stairIdx++) {
 			finalize(stairs.at(stairIdx));
 			stairSolution.push_back(stairs.at(stairIdx));
@@ -1653,12 +1669,13 @@ void recognition::find()
 				std::vector<int> pointIdxStairRise;
 				std::vector<float> squaredDistStairRise;
 
-
-				if ( stairRiseTree.radiusSearch (searchPoint, searchRadius, pointIdxStairRise, squaredDistStairRise) > 0 )
+				int search = (stairRiseTree.radiusSearch (searchPoint, searchRadius, pointIdxStairRise, squaredDistStairRise) > 0);
+				if (search)
 				{
 					for (size_t foundPoints = 0; foundPoints < pointIdxStairRise.size (); foundPoints++)
 					{
-						if(isStairRiseMatch(pointIdxStairRise.at(foundPoints),direction*extension))
+						bool match = isStairRiseMatch(pointIdxStairRise.at(foundPoints),direction*extension);
+						if(match)
 						{
 							if(stepAmount[0] > direction*extension)
 								stepAmount[0] = direction*extension;
@@ -1676,12 +1693,15 @@ void recognition::find()
         	{
 				std::vector<int> pointIdxStairTread;
 				std::vector<float> squaredDistStairTread;
-				if ( stairTreadTree.radiusSearch (searchPoint, searchRadius, pointIdxStairTread, squaredDistStairTread) > 0 )
+
+				bool search = (stairTreadTree.radiusSearch (searchPoint, searchRadius, pointIdxStairTread, squaredDistStairTread) > 0 );
+				if (search)
 				{
 					for (size_t foundPoints = 0; foundPoints < pointIdxStairTread.size (); foundPoints++)
 					{
 	//                	std::cout<<"Point "<<foundPoints<<" out of "<<pointIdxStairTread.size ()<<std::endl;
-						if(isStairTreadMatch(pointIdxStairTread.at(foundPoints),direction*extension))
+						bool match = isStairTreadMatch(pointIdxStairTread.at(foundPoints),direction*extension);
+						if(match)
 						{
 							if(stepAmount[0] > direction*extension)
 								stepAmount[0] = direction*extension;
@@ -2001,7 +2021,7 @@ bool recognition::isStairTreadMatch(int regPos, int stairNo)
         normDirVec.normalize();
         float hDist = (candidate.segmentCentroid.head(2) - startSearchPoint.head(2)).dot(normDirVec); // Horizontal distance to center
 
-        if(fabs(vDist-stairNo*distVec[2]) < maxStairRiseDist && stairNo!= 0) // Check the vertical difference
+        if(fabs(vDist-stairNo*distVec[2]) < maxStairRiseDist /*&& stairNo!= 0*/) // Check the vertical difference
         {
             if( hDist > stairNo*stairWidth && hDist < (stairNo+1)*stairWidth ) // Check the horizontal distance
             {

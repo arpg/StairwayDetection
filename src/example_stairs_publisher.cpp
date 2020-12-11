@@ -80,7 +80,7 @@ int main (int argc, char *argv[])
         cloud_msg.header.stamp = ros::Time::now();
         cloud_pub.publish(cloud_msg);
         ros::spinOnce();
-        ros::Rate(5).sleep();
+        ros::Rate(1).sleep();
     }
 }
 

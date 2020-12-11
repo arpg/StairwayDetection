@@ -36,287 +36,290 @@ public:
 
   void loadConfig(YAML::Node);
 
-    regions segments;
+  regions segments;
 
-    bool testBool;
-    bool wtf;
+  bool testBool;
+  bool wtf;
 
-    bool parFlag;
-    bool ndFlag;
-    bool pdFlag;
-    float parAngle;
-    bool widthFlag;
+  bool parFlag;
+  bool ndFlag;
+  bool pdFlag;
+  float parAngle;
+  bool widthFlag;
 
-    bool predifinedValues;
-    double preDefDepth;
-    double preDefHeight;
-    double preDefWidth;
+  bool predifinedValues;
+  double preDefDepth;
+  double preDefHeight;
+  double preDefWidth;
 
-    bool floorInformation;
+  bool floorInformation;
 
-    Eigen::Vector2f nDistance;
-    Eigen::Vector2f pDistance;
+  Eigen::Vector2f nDistance;
+  Eigen::Vector2f pDistance;
 
-    inline void setFloorFlag (bool input)
-    {
-    	floorInformation = input;
-    }
+  inline void setFloorFlag (bool input)
+  {
+    floorInformation = input;
+  }
 
-    inline void setParFlag(bool input)
-    {
-        parFlag = input;
-    }
+  inline void setParFlag(bool input)
+  {
+      parFlag = input;
+  }
 
-    inline void setWidthFlag(bool input)
-    {
-    	widthFlag = input;
-    }
+  inline void setWidthFlag(bool input)
+  {
+    widthFlag = input;
+  }
 
-    inline void setPriorKnowledge(bool input)
-    {
-    	predifinedValues = input;
-    }
+  inline void setPriorKnowledge(bool input)
+  {
+    predifinedValues = input;
+  }
 
-    inline void setStairDepth(double input)
-    {
-    	preDefDepth = input/100;
-    }
+  inline void setStairDepth(double input)
+  {
+    preDefDepth = input/100;
+  }
 
-    inline void setStairHeight(double input)
-    {
-    	preDefHeight = input/100;
-    }
+  inline void setStairHeight(double input)
+  {
+    preDefHeight = input/100;
+  }
 
-    inline void setStairWidth(double input)
-    {
-    	preDefWidth = input/100;
-    }
+  inline void setStairWidth(double input)
+  {
+    preDefWidth = input/100;
+  }
 
-    inline void setParAngle(float input)
-    {
-        parAngle = cos(input/180*M_PI);
-    }
+  inline void setParAngle(float input)
+  {
+      parAngle = cos(input/180*M_PI);
+  }
 
-    inline void setNDFlag(bool input)
-    {
-        ndFlag = input;
-    }
+  inline void setNDFlag(bool input)
+  {
+      ndFlag = input;
+  }
 
-    inline void setPDFlag(bool input)
-    {
-        pdFlag = input;
-    }
+  inline void setPDFlag(bool input)
+  {
+      pdFlag = input;
+  }
 
-    inline void setNDistance(Eigen::Vector2f input)
-    {
-        nDistance = input;
-    }
+  inline void setNDistance(Eigen::Vector2f input)
+  {
+      nDistance = input;
+  }
 
-    inline void setPDistance(Eigen::Vector2f input)
-    {
-        pDistance = input;
-    }
+  inline void setPDistance(Eigen::Vector2f input)
+  {
+      pDistance = input;
+  }
 
-    inline void setInputRegions(regions input_)
-    {
-        segments = input_;
-        inputRegions = input_;
-    }
+  inline void setInputRegions(regions input_)
+  {
+      segments = input_;
+      inputRegions = input_;
+  }
 
-    void filter();
-    void filterCircular();
+  void filter();
+  void filterCircular();
 
-    regions inputRegions;
-    regions indicatorScRegions;
-    regions indicatorSwRegions;
+  regions inputRegions;
+  regions indicatorScRegions;
+  regions indicatorSwRegions;
 
-    regions stairTreadRegions;
-    regions stairRiseRegions;
+  regions stairTreadRegions;
+  regions stairRiseRegions;
 
-    regions tempOutput;
-    regions tempComponentOut;
+  regions tempOutput;
+  regions tempComponentOut;
 
-    regions stairTreads;
-    regions stairRises;
+  regions stairTreads;
+  regions stairRises;
 
-    regions stairParts;
+  regions stairParts;
 
-    float maxStairRiseDist;
-    float maxStairRiseHDist;
-    float maxStairRiseAngle;
-    float maxStairTreadDist;
+  float maxStairRiseDist;
+  float maxStairRiseHDist;
+  float maxStairRiseAngle;
+  float maxStairTreadDist;
 
-    double memTime;
-    double whole_time;
-    double widthTime;
-    double sortTime;
-    double getWTime;
+	float minStairInc;
+	float maxStairInc;
 
-    bool stairRailFlag;
+  double memTime;
+  double whole_time;
+  double widthTime;
+  double sortTime;
+  double getWTime;
 
-    int basePart;
+  bool stairRailFlag;
 
-    Eigen::Vector2f widthReqVec;
+  int basePart;
 
-    Eigen::Vector3f distVec;
-    Eigen::Vector3f startSearchPoint;
-    Eigen::Vector3f stairPos;
-    Eigen::Vector2i stepAmount;
+  Eigen::Vector2f widthReqVec;
 
-    StairVector stairs;
-    int stairCount;
+  Eigen::Vector3f distVec;
+  Eigen::Vector3f startSearchPoint;
+  Eigen::Vector3f stairPos;
+  Eigen::Vector2i stepAmount;
 
-    std::vector<int> addedLabel;
-    std::vector<int> globalAddedLabel;
+  StairVector stairs;
+  int stairCount;
 
-    bool updateFlag;
-    bool optimizeFlag;
+  std::vector<int> addedLabel;
+  std::vector<int> globalAddedLabel;
 
-    float angleDiff;
-    float distCircCent;
-    bool clockWise;
-    bool graphMeth;
+  bool updateFlag;
+  bool optimizeFlag;
 
-    inline void setGraphMeth(bool input)
-    {
-    	graphMeth = input;
-    }
+  float angleDiff;
+  float distCircCent;
+  bool clockWise;
+  bool graphMeth;
 
-    inline void setUpdateFlag(bool input)
-    {
-    	updateFlag = input;
-    }
+  inline void setGraphMeth(bool input)
+  {
+    graphMeth = input;
+  }
 
-    inline void setOptimizeFlag(bool input)
-    {
-    	optimizeFlag = input;
-    }
+  inline void setUpdateFlag(bool input)
+  {
+    updateFlag = input;
+  }
 
-    inline void setWidthReq(Eigen::Vector2f input)
-    {
-    	widthReqVec = input;
-    }
+  inline void setOptimizeFlag(bool input)
+  {
+    optimizeFlag = input;
+  }
 
-    inline void setStairRailFlag(bool input)
-    {
-        stairRailFlag = input;
-    }
+  inline void setWidthReq(Eigen::Vector2f input)
+  {
+    widthReqVec = input;
+  }
 
-    inline void setStairTreadRegions(regions input)
-    {
-        stairTreadRegions = input;
-    }
+  inline void setStairRailFlag(bool input)
+  {
+      stairRailFlag = input;
+  }
 
-    inline void setStairRiseRegions(regions input)
-    {
-        stairRiseRegions = input;
-    }
+  inline void setStairTreadRegions(regions input)
+  {
+      stairTreadRegions = input;
+  }
 
-    void run(StairVector& output);
+  inline void setStairRiseRegions(regions input)
+  {
+      stairRiseRegions = input;
+  }
 
-    void finalize(Stairs& input);
+  void run(StairVector& output);
+
+  void finalize(Stairs& input);
 
 
-    void check();
+  void check();
 
-    bool isStairRiseMatch(int regPos, int stairNo);
-    bool isStairTreadMatch(int regPos, int stairNo);
-    void findStairRail(Stairs& input);
-    void findStairRailCirc(Stairs& input);
-    void expandSearch();
-    bool widthReq(segmentPatch& testPatch);
-    bool widthReqCirc(segmentPatch& testPatch, int stairNo);
+  bool isStairRiseMatch(int regPos, int stairNo);
+  bool isStairTreadMatch(int regPos, int stairNo);
+  void findStairRail(Stairs& input);
+  void findStairRailCirc(Stairs& input);
+  void expandSearch();
+  bool widthReq(segmentPatch& testPatch);
+  bool widthReqCirc(segmentPatch& testPatch, int stairNo);
 
-    Eigen::Vector3f getStairScore();
-    Eigen::Matrix<float,5,1> getStairScoreNew();
-    Eigen::Vector3f getStairScoreCirc();
-    void optimizeCoefficients();
+  Eigen::Vector3f getStairScore();
+  Eigen::Matrix<float,5,1> getStairScoreNew();
+  Eigen::Vector3f getStairScoreCirc();
+  void optimizeCoefficients();
 
 //    VectorX computeDistance(Eigen::Matrix<float,5,1> estimateVector, regions nstairRises, regions nstairTreads) const;
-    VectorX computeDistanceNew(Eigen::Matrix<float,5,1> estimateVector, regions nstairRises, regions nstairTreads) const;
+  VectorX computeDistanceNew(Eigen::Matrix<float,5,1> estimateVector, regions nstairRises, regions nstairTreads) const;
 
-    void find();
+  void find();
 
-    template<typename _Scalar, int NX=Eigen::Dynamic, int NY=Eigen::Dynamic>
-    struct Functor
+  template<typename _Scalar, int NX=Eigen::Dynamic, int NY=Eigen::Dynamic>
+  struct Functor
+  {
+    typedef _Scalar Scalar;
+    enum
     {
-      typedef _Scalar Scalar;
-      enum
-      {
-        InputsAtCompileTime = NX,
-        ValuesAtCompileTime = NY
-      };
-      typedef Eigen::Matrix<_Scalar,InputsAtCompileTime,1> InputType;
-      typedef Eigen::Matrix<_Scalar,ValuesAtCompileTime,1> ValueType;
-      typedef Eigen::Matrix<_Scalar,ValuesAtCompileTime,InputsAtCompileTime> JacobianType;
-
-      /** \brief Empty Construtor. */
-      Functor () : m_data_points_ (ValuesAtCompileTime) {}
-
-      /** \brief Constructor
-        * \param[in] m_data_points number of data points to evaluate.
-        */
-      Functor (int m_data_points) : m_data_points_ (m_data_points) {}
-
-      /** \brief Destructor. */
-      virtual ~Functor () {}
-
-      /** \brief Get the number of values. */
-      int
-      values () const { return (m_data_points_); }
-
-      protected:
-        int m_data_points_;
+      InputsAtCompileTime = NX,
+      ValuesAtCompileTime = NY
     };
+    typedef Eigen::Matrix<_Scalar,InputsAtCompileTime,1> InputType;
+    typedef Eigen::Matrix<_Scalar,ValuesAtCompileTime,1> ValueType;
+    typedef Eigen::Matrix<_Scalar,ValuesAtCompileTime,InputsAtCompileTime> JacobianType;
 
-    struct OptimizationFunctor : public Functor<float>
+    /** \brief Empty Construtor. */
+    Functor () : m_data_points_ (ValuesAtCompileTime) {}
+
+    /** \brief Constructor
+      * \param[in] m_data_points number of data points to evaluate.
+      */
+    Functor (int m_data_points) : m_data_points_ (m_data_points) {}
+
+    /** \brief Destructor. */
+    virtual ~Functor () {}
+
+    /** \brief Get the number of values. */
+    int
+    values () const { return (m_data_points_); }
+
+    protected:
+      int m_data_points_;
+  };
+
+  struct OptimizationFunctor : public Functor<float>
+  {
+    using Functor<float>::values;
+
+    /** Functor constructor
+      * \param[in] m_data_points the number of data points to evaluate
+      * \param[in,out] estimator pointer to the estimator object
+      */
+    OptimizationFunctor (int m_data_points,
+                          const recognition *estimator)
+      :  Functor<float> (m_data_points), estimator_ (estimator)
+    {}
+
+    /** Copy constructor
+      * \param[in] src the optimization functor to copy into this
+      */
+    inline OptimizationFunctor (const OptimizationFunctor &src) :
+      Functor<float> (src.m_data_points_), estimator_ ()
     {
-      using Functor<float>::values;
+      *this = src;
+    }
 
-      /** Functor constructor
-        * \param[in] m_data_points the number of data points to evaluate
-        * \param[in,out] estimator pointer to the estimator object
-        */
-      OptimizationFunctor (int m_data_points,
-                           const recognition *estimator)
-        :  Functor<float> (m_data_points), estimator_ (estimator)
-      {}
+    /** Copy operator
+      * \param[in] src the optimization functor to copy into this
+      */
+    inline OptimizationFunctor&
+    operator = (const OptimizationFunctor &src)
+    {
+      Functor<float>::operator=(src);
+      estimator_ = src.estimator_;
+      return (*this);
+    }
 
-      /** Copy constructor
-        * \param[in] src the optimization functor to copy into this
-        */
-      inline OptimizationFunctor (const OptimizationFunctor &src) :
-        Functor<float> (src.m_data_points_), estimator_ ()
-      {
-        *this = src;
-      }
+    /** \brief Destructor. */
+    virtual ~OptimizationFunctor () {}
 
-      /** Copy operator
-        * \param[in] src the optimization functor to copy into this
-        */
-      inline OptimizationFunctor&
-      operator = (const OptimizationFunctor &src)
-      {
-        Functor<float>::operator=(src);
-        estimator_ = src.estimator_;
-        return (*this);
-      }
+    /** Fill fvec from x. For the current state vector x fill the f values
+      * \param[in] x state vector
+      * \param[out] fvec f values vector
+      */
+    int
+    operator () (const VectorX &x, VectorX &fvec) const;
 
-      /** \brief Destructor. */
-      virtual ~OptimizationFunctor () {}
+    const recognition *estimator_;
+  };
 
-      /** Fill fvec from x. For the current state vector x fill the f values
-        * \param[in] x state vector
-        * \param[out] fvec f values vector
-        */
-      int
-      operator () (const VectorX &x, VectorX &fvec) const;
-
-      const recognition *estimator_;
-    };
-
-  public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 #endif // RECOGNITION
