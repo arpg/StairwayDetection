@@ -13,8 +13,9 @@ preanalysis:
   gpFlag: True
   # Ghost point filter angle in degress
   # gpAngle: 10.0
-  # gpAngle: 25.0
-  gpAngle: 45.0
+  gpAngle: 25.0
+  # gpAngle: 45.0
+  # gpAngle: 5.0
   # Point normal filter active?
   pfActive: False
   # Point normal filter angle in degress
@@ -43,7 +44,8 @@ regiongrowing:
   # Smoothness flag (true: compare to seed point false: compare to neighboring point) 
   smoothFlag: True
   # Smoothness threshold 
-  smoothThresh: 50.0 
+  # smoothThresh: 50.0 
+  smoothThresh: 30.0 
   # Residual flag (true: compare to seed point false: compare to neighboring point) 
   resFlag: True
   # Residual distance 
@@ -83,7 +85,8 @@ recognition:
   parAngle: 15.0
   # Height distances
   ndFlag: true
-  nDistanceMin: 0.05
+  # nDistanceMin: 0.05
+  nDistanceMin: 0.11
   nDistanceMax: 0.24
   # Depth distances
   pdFlag: true

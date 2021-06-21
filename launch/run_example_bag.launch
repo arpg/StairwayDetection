@@ -5,7 +5,7 @@
     <arg name="fixed_frame_id" default="base_link"/>
 
 <!-- stairs_descent_ECESAtrium -->
-    <arg name="filepath" default="/home/mike/code_files/marble/bagfiles/stairs_2020-01-13-17-14-07_combined_trimmed.bag"/>
+    <arg name="filepath" default="/home/mike/data/marble/bagfiles/stairs_2020-01-13-17-14-07_combined_trimmed.bag"/>
     <node pkg="topic_tools" type="relay" name="cloud_relay"
         args=" /S24/camera_low/depth/color/points cloud" />
     <node pkg="tf2_ros" type="static_transform_publisher" name="TBase"

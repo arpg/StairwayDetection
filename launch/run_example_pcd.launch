@@ -6,7 +6,7 @@
     <arg name="child_frame_id" default="lidar"/>
     
 <!-- 13_Depth example -->
-    <arg name="filepath" default="/home/mike/catkin_ws/src/StairwayDetection/examples/13_Depth.pcd"/>
+    <arg name="filepath" default="/home/mike/marble_sim_ws/src/stairwaydetection/examples/13_Depth.pcd"/>
     <arg name="origin" default="0 0 0 0 0 0"/>
 
 <!-- stairs_descent_ECESAtrium_close -->
