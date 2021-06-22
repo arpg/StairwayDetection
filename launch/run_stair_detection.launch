@@ -13,6 +13,6 @@
     </node>
 
     <node pkg="rviz" type="rviz" name="rviz"
-    args="-d /home/mike/.rviz/stair_detection.rviz"/>
+    args="-d $(find stair_detection)/stair_detection.rviz"/>
 
 </launch>
