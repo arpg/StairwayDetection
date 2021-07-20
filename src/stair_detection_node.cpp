@@ -48,6 +48,7 @@ ros::Publisher tread_region_nums_pub_;
 ros::Publisher rise_cloud_pub_;
 ros::Publisher tread_cloud_pub_;
 ros::Publisher rail_cloud_pub_;
+ros::Publisher whole_cloud_pub_;
 ros::Publisher seg_stairs_pub_;
 ros::Publisher stair_parts_pub_;
 ros::Publisher nearest_step_pose_pub_;
@@ -84,7 +85,7 @@ inline void pubPose(ros::Publisher* pub, geometry_msgs::PoseStamped step_pose)
 {
     if (sqrt(pow(step_pose.pose.position.x,2)+pow(step_pose.pose.position.y,2)+pow(step_pose.pose.position.z,2)) < .05)
         return;
-        
+
     pub->publish(step_pose);
     ros::spinOnce();
 }
@@ -174,7 +175,7 @@ inline void pubCCloud(ros::Publisher* pub, PointCloudT tcloud, NormalCloud nclou
         // std::cout << std::to_string(nm.curvature)+" ";
         // float curve_sat = 0.5f;
         // float curve_gain = 1/0.05*curve_sat;
-        // RGBColor color = getRGBColor(std::min(curve_sat,std::max(0.f,(float)fabs(nm.curvature*curve_gain)))); 
+        // RGBColor color = getRGBColor(std::min(curve_sat,std::max(0.f,(float)fabs(nm.curvature*curve_gain))));
         // rgb_msg.r = color.r;
         // rgb_msg.g = color.g;
         // rgb_msg.b = color.b;
@@ -200,7 +201,7 @@ inline void pubCCloud(ros::Publisher* pub, regions segments)
     cloud_msg.lifetime = ros::Duration(0.0);
     for(uint j=0; j<segments.size(); j++)
     {
-        RGBColor color = getRGBColor((float)(j)/(float)(segments.size())); 
+        RGBColor color = getRGBColor((float)(j)/(float)(segments.size()));
 
         PointCloudT cloud = segments.at(j).segmentCloud;
         for(uint i=0; i<cloud.size(); i++)
@@ -236,7 +237,7 @@ inline void pubLabels(ros::Publisher* pub, regions segments)
     //     mkr_msg.lifetime = ros::Duration(0.0);
 
     //     mkr_arr_msg.markers.push_back(mkr_msg);
-        
+
     // pub->publish(mkr_arr_msg);
     // ros::spinOnce();
     // }
@@ -324,18 +325,18 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
         getTransformFromTree(fixed_frame_id_, input_msg.header.frame_id, &T_fixed_input_mat);
     // Eigen::Matrix4d invTransformCloud = transformCloud.inverse();
 
-    // transform mainCloud (default identity), 
-    // downsample (default true, 0.01m res), 
-    // normal estimation and init prepNomalCloud with output, 
-    // filter ghost/shadow points (nonexistent points at discontinuities due to sensor noise), 
-    // extract floor and init floorPC with output, 
+    // transform mainCloud (default identity),
+    // downsample (default true, 0.01m res),
+    // normal estimation and init prepNomalCloud with output,
+    // filter ghost/shadow points (nonexistent points at discontinuities due to sensor noise),
+    // extract floor and init floorPC with output,
     // init prepNorMap with xyz's of mainCloud points and rgb's of mainCloud normals
     pre.run(mainCloud, prepNomalCloud, prepNorMap, floorPC, T_fixed_input_mat);
     double preAE = pcl::getTime();
     ROS_INFO("Preanalysis took: %f",preAE-preAS);
 
     pubTCloud(&main_cloud_pub_, *mainCloud);
-    pubCCloud(&normal_cloud_pub_, *mainCloud, *prepNomalCloud);
+    // pubCCloud(&normal_cloud_pub_, *mainCloud, *prepNomalCloud);
 
 // Starting segmentation //
 
@@ -394,7 +395,7 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
 
     // pubCCloud(&rise_regions_pub_,stairRisers);
     // pubCCloud(&tread_regions_pub_,stairTreads);
-    // pubLabels(&tread_region_nums_pub_,stairTreads); 
+    // pubLabels(&tread_region_nums_pub_,stairTreads);
 
 // eigen based stair detection/prediction
 
@@ -412,7 +413,7 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
     // pubCCloud(&tread_regions_pub_,stairTreads);
     // pubLabels(&tread_region_nums_pub_,stairTreads);
 
-    // busy = false; 
+    // busy = false;
     // return;
 
 // Starting graph-based stair detection //
@@ -459,9 +460,14 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
 
     if (detectedStairs.size() > 0)
     {
-        pubTCloud(&rise_cloud_pub_,detectedStairs.at(0).stairRiseCloud); 
+        pubTCloud(&rise_cloud_pub_,detectedStairs.at(0).stairRiseCloud);
         pubTCloud(&tread_cloud_pub_,detectedStairs.at(0).stairTreadCloud);
         pubTCloud(&rail_cloud_pub_,detectedStairs.at(0).stairRailCloud);
+        PointCloudT wholeCloud;
+        wholeCloud += detectedStairs.at(0).stairRiseCloud;
+        wholeCloud += detectedStairs.at(0).stairTreadCloud;
+        wholeCloud += detectedStairs.at(0).stairRailCloud;
+        pubTCloud(&whole_cloud_pub_, wholeCloud);
     }
 
 // Printing out the results //
@@ -524,9 +530,9 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
 			if(colorByPart)
 				resultCloud += detectedStairs.getColoredParts(stairCoeffIdx);
 			else
-				resultCloud += detectedStairs.getColoredCloud(stairCoeffIdx); 
+				resultCloud += detectedStairs.getColoredCloud(stairCoeffIdx);
         }
-        
+
     } // if(detectedStairs.size()>0)
 
     if(detectedStairs.size()>0)
@@ -647,7 +653,7 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
                     maxPos = detectedStairs.at(stairIdx).stairTreads.regs[j].segmentCentroid.head(3);
                 }
             }
- 
+
             for (uint j=0; j<detectedStairs.at(stairIdx).stairRises.size(); j++) // for each tread
             {
                 // ROS_INFO("On rises %d/%d",j,detectedStairs.at(stairIdx).stairRises.size());
@@ -709,18 +715,18 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
 }
 
 int main (int argc, char *argv[])
-{  
+{
     ros::init(argc, argv, "stair_detection_node");
     ros::NodeHandle n;
     ros::Subscriber input_sub = n.subscribe("input_cloud",1,&inputCB);
 
-    if(argc < 2){ 
+    if(argc < 2){
 		ROS_ERROR("Usage: %s <config_filepath>",argv[0]);
         return 0;
 	}
     else
     {
-        config_filepath_ = argv[1]; 
+        config_filepath_ = argv[1];
     }
 
     config_ = YAML::LoadFile(config_filepath_);
@@ -735,10 +741,10 @@ int main (int argc, char *argv[])
     rise_cloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("rise_cloud", 1);
     tread_cloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("tread_cloud", 1);
     rail_cloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("rail_cloud", 1);
+    whole_cloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("whole_cloud", 1);
     seg_stairs_pub_ = n.advertise<visualization_msgs::Marker>("segmented_stairs", 1);
     stair_parts_pub_ = n.advertise<visualization_msgs::Marker>("stair_parts",1);
     nearest_step_pose_pub_ = n.advertise<geometry_msgs::PoseStamped>("nearest_step_pose",1);
 
     ros::spin();
 }
-

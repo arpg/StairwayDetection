@@ -6,13 +6,15 @@
 
     <arg name="config_filepath" default="$(find stair_detection)/config.yaml"/>
     <arg name="input_cloud_topic" default="cloud"/>
-    
-    <node pkg="stair_detection" type="stair_detection_node" name="stair_detector" output="screen" launch-prefix="$(arg launch_prefix)"
+    <arg name="output_whole_cloud_topic" default="stair_cloud"/>
+
+    <node pkg="stair_detection" type="stair_detection_node" name="stair_detector" output="log" launch-prefix="$(arg launch_prefix)"
     args=" $(arg config_filepath)">
         <remap from="input_cloud" to="$(arg input_cloud_topic)"/>
+        <remap from="whole_cloud" to="$(arg output_whole_cloud_topic)"/>
     </node>
 
-    <node pkg="rviz" type="rviz" name="rviz"
-    args="-d $(find stair_detection)/stair_detection.rviz"/>
+    <!-- <node pkg="rviz" type="rviz" name="rviz"
+    args="-d $(find stair_detection)/stair_detection.rviz"/> -->
 
 </launch>
