@@ -19,6 +19,7 @@
 // #include <pcl_ros/point_cloud.h>
 // #include <pcl_ros/transforms.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/common/distances.h>
 // #include <colormap/palettes.hpp>
 #include <tf/transform_listener.h>
 #include <tf_conversions/tf_eigen.h>
@@ -49,6 +50,7 @@ ros::Publisher rise_cloud_pub_;
 ros::Publisher tread_cloud_pub_;
 ros::Publisher rail_cloud_pub_;
 ros::Publisher whole_cloud_pub_;
+ros::Publisher is_stair_cloud_pub_;
 ros::Publisher seg_stairs_pub_;
 ros::Publisher stair_parts_pub_;
 ros::Publisher nearest_step_pose_pub_;
@@ -301,7 +303,7 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
 	double loadS = pcl::getTime();
 
     PointCloudT::Ptr mainCloud;
-	mainCloud.reset (new PointCloudT);
+	// mainCloud->reset (new PointCloudT);
 
     pcl::fromROSMsg(input_msg, *mainCloud);
 
@@ -463,11 +465,34 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
         pubTCloud(&rise_cloud_pub_,detectedStairs.at(0).stairRiseCloud);
         pubTCloud(&tread_cloud_pub_,detectedStairs.at(0).stairTreadCloud);
         pubTCloud(&rail_cloud_pub_,detectedStairs.at(0).stairRailCloud);
-        PointCloudT wholeCloud;
-        wholeCloud += detectedStairs.at(0).stairRiseCloud;
-        wholeCloud += detectedStairs.at(0).stairTreadCloud;
-        wholeCloud += detectedStairs.at(0).stairRailCloud;
-        pubTCloud(&whole_cloud_pub_, wholeCloud);
+        PointCloudT wholeStairCloud;
+        wholeStairCloud += detectedStairs.at(0).stairRiseCloud;
+        wholeStairCloud += detectedStairs.at(0).stairTreadCloud;
+        wholeStairCloud += detectedStairs.at(0).stairRailCloud;
+        pubTCloud(&whole_cloud_pub_, wholeStairCloud);
+        
+        pcl::PointCloud<pcl::PointXYZI> isStairCloud;
+        for (uint i=0; i<mainCloud->points.size(); i++) {
+            pcl::PointXYZI bpt;
+            bpt.x = mainCloud->points[i].x;
+            bpt.y = mainCloud->points[i].y;
+            bpt.z = mainCloud->points[i].z;
+            bpt.intensity = 0.f;
+            float ptStairDistThresh = 0.01;
+            for (uint j=0; j<wholeStairCloud.points.size(); j++) {
+                if (pcl::euclideanDistance(mainCloud->points[i],wholeStairCloud.points[j])<ptStairDistThresh) {
+                    bpt.intensity = 1.f;    
+                    continue;
+                }
+            }
+            isStairCloud.points.push_back(bpt);
+        }
+        sensor_msgs::PointCloud2 cloud_msg;
+        pcl::toROSMsg(isStairCloud, cloud_msg);
+        cloud_msg.header.frame_id = fixed_frame_id_;
+        cloud_msg.header.stamp = ros::Time::now();
+        is_stair_cloud_pub_.publish(cloud_msg);
+        ros::spinOnce();
     }
 
 // Printing out the results //
@@ -742,6 +767,7 @@ int main (int argc, char *argv[])
     tread_cloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("tread_cloud", 1);
     rail_cloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("rail_cloud", 1);
     whole_cloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("whole_cloud", 1);
+    is_stair_cloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("is_stair_cloud", 1);
     seg_stairs_pub_ = n.advertise<visualization_msgs::Marker>("segmented_stairs", 1);
     stair_parts_pub_ = n.advertise<visualization_msgs::Marker>("stair_parts",1);
     nearest_step_pose_pub_ = n.advertise<geometry_msgs::PoseStamped>("nearest_step_pose",1);
