@@ -8,7 +8,7 @@
     <arg name="input_cloud_topic" default="cloud"/>
     <arg name="output_whole_cloud_topic" default="stair_cloud"/>
 
-    <node pkg="stair_detection" type="stair_detection_node" name="stair_detector" output="screen" launch-prefix="$(arg launch_prefix)" respawn="true">
+    <node pkg="stair_detection" type="stair_detection_node" name="stair_detector" output="log" launch-prefix="$(arg launch_prefix)" respawn="true">
         <param name="config_filepath" value="$(arg config_filepath)"/>
         <remap from="~input_cloud" to="$(arg input_cloud_topic)"/>
         <remap from="~is_stair_cloud" to="$(arg output_whole_cloud_topic)"/>
