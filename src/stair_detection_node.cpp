@@ -287,7 +287,7 @@ public:
             PointCloudT wholeStairCloud;
             wholeStairCloud += detectedStairs.at(0).stairRiseCloud;
             wholeStairCloud += detectedStairs.at(0).stairTreadCloud;
-            wholeStairCloud += detectedStairs.at(0).stairRailCloud;
+            // wholeStairCloud += detectedStairs.at(0).stairRailCloud;
             pubTCloud(&whole_cloud_pub_, wholeStairCloud,fixed_frame_id_,stamp_);
             
             pcl::PointCloud<pcl::PointXYZI> isStairCloud;
