@@ -14,10 +14,6 @@
 // #include <stair_detection/prediction.h>
 
 #include <stair_detection/ros_functions.hpp>
-
-#include <dynamic_reconfigure/server.h>
-#include <stair_detection/StairDetectionConfig.h>
-
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -28,6 +24,10 @@
 // #include <colormap/palettes.hpp>
 #include <tf/transform_listener.h>
 #include <tf_conversions/tf_eigen.h>
+
+#include <dynamic_reconfigure/server.h>
+#include <stair_detection/StairDetectionConfig.h>
+
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointNormal PointNT;
@@ -205,40 +205,40 @@ public:
         params_.regiongrowing.pointUpdateFlag = config.groups.region_growing.rgPointUpdateFlag;
         params_.regiongrowing.updateInterval = config.groups.region_growing.updateInterval;
 
-        params_.planeshape.angleMargin = config.groups.planeshape.angleMargin;
-        params_.planeshape.widthReqMin = config.groups.planeshape.widthReqMin;
-        params_.planeshape.widthReqMax = config.groups.planeshape.widthReqMax;
-        params_.planeshape.treadDepthMin = config.groups.planeshape.treadDepthMin;
-        params_.planeshape.treadDepthMax = config.groups.planeshape.treadDepthMax;
-        params_.planeshape.riserHeightMin = config.groups.planeshape.riserHeightMin;
-        params_.planeshape.riserHeightMax = config.groups.planeshape.riserHeightMax;
+        params_.planeshape.angleMargin = config.groups.ps.angleMargin;
+        params_.planeshape.widthReqMin = config.groups.ps.widthReqMin;
+        params_.planeshape.widthReqMax = config.groups.ps.widthReqMax;
+        params_.planeshape.treadDepthMin = config.groups.ps.treadDepthMin;
+        params_.planeshape.treadDepthMax = config.groups.ps.treadDepthMax;
+        params_.planeshape.riserHeightMin = config.groups.ps.riserHeightMin;
+        params_.planeshape.riserHeightMax = config.groups.ps.riserHeightMax;
 
-        params_.recognition.graphMeth = config.groups.recognition.graphMeth;
-        params_.recognition.optimizeFlag = config.groups.recognition.optimizeFlag;
-        params_.recognition.widthReqVecMin = config.groups.recognition.widthReqVecMin;
-        params_.recognition.widthReqVecMax = config.groups.recognition.widthReqVecMax;
-        params_.recognition.widthFlag = config.groups.recognition.widthFlag;
-        params_.recognition.parFlag = config.groups.recognition.parFlag;
-        params_.recognition.parAngle = config.groups.recognition.parAngle;
-        params_.recognition.ndFlag = config.groups.recognition.ndFlag;
-        params_.recognition.nDistanceMin = config.groups.recognition.nDistanceMin;
-        params_.recognition.nDistanceMax = config.groups.recognition.nDistanceMax;
-        params_.recognition.pdFlag = config.groups.recognition.pdFlag;
-        params_.recognition.pDistanceMin = config.groups.recognition.pDistanceMin;
-        params_.recognition.pDistanceMax = config.groups.recognition.pDistanceMax;
-        params_.recognition.floorInformation = config.groups.recognition.floorInformation;
-        params_.recognition.updateFlag = config.groups.recognition.recUpdateFlag;
-        params_.recognition.stairRailFlag = config.groups.recognition.stairRailFlag;
-        params_.recognition.predifinedValues = config.groups.recognition.predifinedValues;
-        params_.recognition.preDefDepth = config.groups.recognition.preDefDepth;
-        params_.recognition.preDefHeight = config.groups.recognition.preDefHeight;
-        params_.recognition.preDefWidth = config.groups.recognition.preDefWidth;
-        params_.recognition.maxStairRiseDist = config.groups.recognition.maxStairRiseDist;
-        params_.recognition.maxStairRiseHDist = config.groups.recognition.maxStairRiseHDist;
-        params_.recognition.maxStairTreadDist = config.groups.recognition.maxStairTreadDist;
-        params_.recognition.maxStairRiseAngle = config.groups.recognition.maxStairRiseAngle;
-        params_.recognition.minStairIncAngle = config.groups.recognition.minStairIncAngle;
-        params_.recognition.maxStairIncAngle = config.groups.recognition.maxStairIncAngle;
+        params_.recognition.graphMeth = config.groups.rec.graphMeth;
+        params_.recognition.optimizeFlag = config.groups.rec.optimizeFlag;
+        params_.recognition.widthReqVecMin = config.groups.rec.widthReqVecMin;
+        params_.recognition.widthReqVecMax = config.groups.rec.widthReqVecMax;
+        params_.recognition.widthFlag = config.groups.rec.widthFlag;
+        params_.recognition.parFlag = config.groups.rec.parFlag;
+        params_.recognition.parAngle = config.groups.rec.parAngle;
+        params_.recognition.ndFlag = config.groups.rec.ndFlag;
+        params_.recognition.nDistanceMin = config.groups.rec.nDistanceMin;
+        params_.recognition.nDistanceMax = config.groups.rec.nDistanceMax;
+        params_.recognition.pdFlag = config.groups.rec.pdFlag;
+        params_.recognition.pDistanceMin = config.groups.rec.pDistanceMin;
+        params_.recognition.pDistanceMax = config.groups.rec.pDistanceMax;
+        params_.recognition.floorInformation = config.groups.rec.floorInformation;
+        params_.recognition.updateFlag = config.groups.rec.recUpdateFlag;
+        params_.recognition.stairRailFlag = config.groups.rec.stairRailFlag;
+        params_.recognition.predifinedValues = config.groups.rec.predifinedValues;
+        params_.recognition.preDefDepth = config.groups.rec.preDefDepth;
+        params_.recognition.preDefHeight = config.groups.rec.preDefHeight;
+        params_.recognition.preDefWidth = config.groups.rec.preDefWidth;
+        params_.recognition.maxStairRiseDist = config.groups.rec.maxStairRiseDist;
+        params_.recognition.maxStairRiseHDist = config.groups.rec.maxStairRiseHDist;
+        params_.recognition.maxStairTreadDist = config.groups.rec.maxStairTreadDist;
+        params_.recognition.maxStairRiseAngle = config.groups.rec.maxStairRiseAngle;
+        params_.recognition.minStairIncAngle = config.groups.rec.minStairIncAngle;
+        params_.recognition.maxStairIncAngle = config.groups.rec.maxStairIncAngle;
     }
 
     inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
