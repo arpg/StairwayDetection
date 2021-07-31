@@ -1,4 +1,4 @@
-#include <stairs/recognition.h>
+#include <stair_detection/recognition.h>
 
 #define sind(x) (sin(fmod((x),360) * M_PI / 180))
 #define cosd(x) (cos(fmod((x),360) * M_PI / 180))
@@ -44,52 +44,58 @@ recognition::recognition()
 	preDefHeight = 0;
 	preDefWidth = 0;
 
+	// stair distances (originally under run()
+    maxStairRiseDist = 0.05;
+    maxStairRiseHDist = 0.05;
+    maxStairTreadDist = 0.05;
+    maxStairRiseAngle = cos(30/180*M_PI);
+
 	// filter params
 	minStairInc = sin(10.0/180.0*M_PI);
 	maxStairInc = sin(50.0/180.0*M_PI);
 }
 
-void recognition::loadConfig(YAML::Node config)
+void recognition::loadConfig(StairDetectionParams::RecognitionParams config)
 {
 	// graphMeth false for extended search - true for simple search
-	graphMeth = config["graphMeth"].as<bool>();
+	graphMeth = config.graphMeth;
 	// use least-squared method to optimize parameters as post-processing
-	optimizeFlag = config["optimizeFlag"].as<bool>();
+	optimizeFlag = config.optimizeFlag;
 	// Width requirement for the stairs
-	widthReqVec << config["widthReqVecMin"].as<float>(),
-		config["widthReqVecMax"].as<float>();
+	widthReqVec[0] = config.widthReqVecMin;
+	widthReqVec[1] = config.widthReqVecMax;
 	//Stair parts have to overlap in their width
-	widthFlag = config["widthFlag"].as<bool>();
+	widthFlag = config.widthFlag;
 	// Check the angle between stair parts
-	parFlag = config["parFlag"].as<bool>();
-	parAngle = cos(config["parAngle"].as<float>()/180*M_PI);
+	parFlag = config.parFlag;
+	parAngle = cos(config.parAngle/180*M_PI);
 	// Height distances
-	ndFlag = config["ndFlag"].as<bool>();
-	nDistance << config["nDistanceMin"].as<float>(),
-		config["nDistanceMax"].as<float>();;
+	ndFlag = config.ndFlag;
+	nDistance[0] = config.nDistanceMin;
+	nDistance[1] = config.nDistanceMax;
 	// Depth distances
-	pdFlag = config["pdFlag"].as<bool>();
-	pDistance << config["pDistanceMin"].as<float>(),
-		config["pDistanceMax"].as<float>();
+	pdFlag = config.pdFlag;
+	pDistance[0] = config.pDistanceMin;
+	pDistance[1] = config.pDistanceMax;
 	// true for known floor - false for unknown (floor should be at z = 0.0)
-	floorInformation = config["floorInformation"].as<bool>();
+	floorInformation = config.floorInformation;
 	// Update stair coefficients during graph extension - results are suboptimal - not recommended
-	updateFlag = config["updateFlag"].as<bool>();
+	updateFlag = config.updateFlag;
 	// Extend the rail beyond the detected stairway
-	stairRailFlag = config["stairRailFlag"].as<bool>();
+	stairRailFlag = config.stairRailFlag;
     // Set if you want to find stairs with known parameters
-    predifinedValues = config["predifinedValues"].as<bool>();
-    preDefDepth = config["preDefDepth"].as<double>();
-	preDefHeight = config["preDefHeight"].as<double>();
-	preDefWidth = config["preDefWidth"].as<double>();
+    predifinedValues = config.predifinedValues;
+    preDefDepth = config.preDefDepth;
+	preDefHeight = config.preDefHeight;
+	preDefWidth = config.preDefWidth;
 	// stair distances (originally under run()
-    maxStairRiseDist = config["maxStairRiseDist"].as<float>();
-    maxStairRiseHDist = config["maxStairRiseHDist"].as<float>();
-    maxStairTreadDist = config["maxStairTreadDist"].as<float>();
-    maxStairRiseAngle = cos(config["maxStairRiseAngle"].as<float>()/180*M_PI);
+    maxStairRiseDist = config.maxStairRiseDist;
+    maxStairRiseHDist = config.maxStairRiseHDist;
+    maxStairTreadDist = config.maxStairTreadDist;
+    maxStairRiseAngle = cos(config.maxStairRiseAngle/180*M_PI);
 	// filter params
-	minStairInc = sin(config["minStairIncAngle"].as<float>()/180.0*M_PI);
-	maxStairInc = sin(config["maxStairIncAngle"].as<float>()/180.0*M_PI);
+	minStairInc = sin(config.minStairIncAngle/180.0*M_PI);
+	maxStairInc = sin(config.maxStairIncAngle/180.0*M_PI);
 }
 
 void recognition::filter()

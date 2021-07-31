@@ -1,4 +1,4 @@
-#include <stairs/preanalysis.h>
+#include <stair_detection/preanalysis.h>
 
 Preanalysis::Preanalysis()
 {
@@ -110,43 +110,45 @@ void Preanalysis::run(
     }
 }
 
-void Preanalysis::loadConfig(YAML::Node config)
+void Preanalysis::loadConfig(StairDetectionParams::PreanalysisParams config)
 {
     // Set if downsample active
-	dsFlag = config["dsFlag"].as<bool>();
+	dsFlag = config.dsFlag;
 	// Set downsample resolution
-	dsResolution = config["dsResolution"].as<double>();
+	dsResolution = config.dsResolution;
 	// Normal estimation - find N neareast neighbors (:=0) - find points within distance (:=1)
-	neNeighMethod = config["neNeighMethod"].as<int>();
-	neSearchNeighbours = config["neSearchNeighbours"].as<int>();
-	neSearchRadius = config["neSearchRadius"].as<double>();
+	neNeighMethod = config.neNeighMethod;
+	neSearchNeighbours = config.neSearchNeighbours;
+	neSearchRadius = config.neSearchRadius;
 	// Ghost point filter active?
-	gpFlag = config["gpFlag"].as<bool>();
+	gpFlag = config.gpFlag;
 	// Ghost point filter angle
-	gpAngle = config["gpAngle"].as<double>();
+	gpAngle = config.gpAngle;
 	// Point normal filter active?
-	pfActive = config["pfActive"].as<bool>();
+	pfActive = config.pfActive;
 	// Point normal filter angle
-	pfAngle = config["pfAngle"].as<double>();
+	pfAngle = config.pfAngle;
 	// Floor seperation active?
-	fsActive = config["fsActive"].as<bool>();
+	fsActive = config.fsActive;
     // Floor seperation angle
-    fsAngle = config["fsAngle"].as<double>();
+    fsAngle = config.fsAngle;
     // Floor seperation distance
-    fsRange = config["fsRange"].as<double>();
+    fsRange = config.fsRange;
     // Set the position of the LIDAR (required for floor separation)
-    rob_x = config["rob_x"].as<double>();
-    rob_y = config["rob_y"].as<double>();
-    rob_z = config["rob_z"].as<double>();
+    rob_x = config.rob_x;
+    rob_y = config.rob_y;
+    rob_z = config.rob_z;
     // Rotate pointcloud around z-axis
-    robAngle = config["robAngle"].as<double>();
+    robAngle = config.robAngle;
 	// Downsample method - Standard: flase - Experimental version: true
-	dsMethod = config["dsMethod"].as<bool>();
+	dsMethod = config.dsMethod;
     // Process ghost point filter and floor separation in separate steps
-	neMethod = config["neMethod"].as<int>();
+	neMethod = config.neMethod;
 
     inputCloud.reset (new PointCloudT);
     normal_cloud.reset (new NormalCloud);
+    // floorPC.reset (new PointCloudT);
+    // floorNormal.reset (new PointCloudT);
 }
 
 void Preanalysis::limitPC()

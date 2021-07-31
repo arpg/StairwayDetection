@@ -4,10 +4,11 @@
 #include <pcl/point_types.h>
 #include <pcl/common/time.h>
 
-#include <stairs/region_growing.h>
+#include <stair_detection/region_growing.h>
 
-#include <stairs/regions.h>
-#include <yaml-cpp/yaml.h>
+#include <stair_detection/regions.h>
+
+#include <stair_detection/ros_functions.hpp>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointNormal PointNT;
@@ -102,7 +103,7 @@ public:
 //    void analyzePrimitives();
 //    void filter(regions& segmentListFilt);
 
-    void loadConfig(YAML::Node);
+    void loadConfig(StairDetectionParams::RegionGrowingParams);
 
     inline void setInputCloud(PointCloudT::Ptr input)
     {

@@ -5,7 +5,7 @@
  *      Author: tom
  */
 
-#include <stairs/segmentPatch.h>
+#include <stair_detection/segmentPatch.h>
 
 
 void segmentPatch::writeSegment(std::ofstream& writeFile)

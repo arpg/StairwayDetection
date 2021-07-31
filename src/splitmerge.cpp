@@ -1,4 +1,4 @@
-#include <stairs/splitmerge.h>
+#include <stair_detection/splitmerge.h>
 
 splitMerge::splitMerge ()
 {

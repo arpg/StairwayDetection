@@ -41,7 +41,7 @@
 #ifndef PCL_FEATURES_IMPL_NORMAL_3D_H_
 #define PCL_FEATURES_IMPL_NORMAL_3D_H_
 
-#include "stairs/normal_3d.h"
+#include "stair_detection/normal_3d.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointInT, typename PointOutT> void

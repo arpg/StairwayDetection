@@ -3,17 +3,20 @@
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
 
-#include <stairs/preanalysis.h>
-#include <stairs/regions.h>
-#include <stairs/regiongrowing.h>
-#include <stairs/voxSAC.h>
-#include <stairs/splitmerge.h>
-#include <stairs/planeshape.h>
-#include <stairs/recognition.h>
-#include <stairs/StairVector.h>
-// #include <stairs/prediction.h>
+#include <stair_detection/preanalysis.h>
+#include <stair_detection/regions.h>
+#include <stair_detection/regiongrowing.h>
+#include <stair_detection/voxSAC.h>
+#include <stair_detection/splitmerge.h>
+#include <stair_detection/planeshape.h>
+#include <stair_detection/recognition.h>
+#include <stair_detection/StairVector.h>
+// #include <stair_detection/prediction.h>
 
-#include <stairs/ros_functions.hpp>
+#include <stair_detection/ros_functions.hpp>
+
+#include <dynamic_reconfigure/server.h>
+#include <stair_detection/StairDetectionConfig.h>
 
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -25,7 +28,6 @@
 // #include <colormap/palettes.hpp>
 #include <tf/transform_listener.h>
 #include <tf_conversions/tf_eigen.h>
-#include <yaml-cpp/yaml.h>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointNormal PointNT;
@@ -42,14 +44,15 @@ class StairDetection
 private:
     boost::mutex mutex_;
 
+    StairDetectionParams params_;
+
     ros::NodeHandle m_nh, m_private_nh;
     ros::Time stamp_;
     std::string frame_;
     tf::TransformListener listener;
     ros::Subscriber input_sub;
+    dynamic_reconfigure::Server<stair_detection::StairDetectionConfig> cfg_server_;
 
-    std::string config_filepath_;
-    YAML::Node config_;
     std::string fixed_frame_id_;
     ros::Publisher main_cloud_pub_;
     ros::Publisher normal_cloud_pub_;
@@ -78,9 +81,73 @@ public:
         
         input_sub = m_private_nh.subscribe("input_cloud",1,&StairDetection::inputCB,this);
 
-        m_private_nh.param("config_filepath", config_filepath_, std::string(""));
-        config_ = YAML::LoadFile(config_filepath_);
-        fixed_frame_id_ = config_["ros"]["fixed_frame_id"].as<std::string>();
+        cfg_server_.setCallback(boost::bind(&StairDetection::cfgCb, this, _1, _2));
+
+        m_private_nh.param("fixed_frame_id", fixed_frame_id_, std::string("map"));
+        // m_private_nh.param("pub_viz", params_.pub_viz_, true);
+        m_private_nh.param("preanalysis/dsFlag", params_.preanalysis.dsFlag, true);
+        m_private_nh.param("preanalysis/dsResolution", params_.preanalysis.dsResolution, 0.01);
+        m_private_nh.param("preanalysis/neNeighMethod", params_.preanalysis.neNeighMethod, 0);
+        m_private_nh.param("preanalysis/neSearchNeighbours", params_.preanalysis.neSearchNeighbours, 24);
+        m_private_nh.param("preanalysis/neSearchRadius", params_.preanalysis.neSearchRadius, 0.2);
+        m_private_nh.param("preanalysis/gpFlag", params_.preanalysis.gpFlag, false);
+        m_private_nh.param("preanalysis/gpAngle", params_.preanalysis.gpAngle, 25.0);
+        m_private_nh.param("preanalysis/pfActive", params_.preanalysis.pfActive, false);
+        m_private_nh.param("preanalysis/pfAngle", params_.preanalysis.pfAngle, 20.0);
+        m_private_nh.param("preanalysis/fsActive", params_.preanalysis.fsActive, false);
+        m_private_nh.param("preanalysis/fsAngle", params_.preanalysis.fsAngle, 30.0);
+        m_private_nh.param("preanalysis/fsRange", params_.preanalysis.fsRange, 0.05);
+        m_private_nh.param("preanalysis/rob_x", params_.preanalysis.rob_x, 0.0);
+        m_private_nh.param("preanalysis/rob_y", params_.preanalysis.rob_y, 0.0);
+        m_private_nh.param("preanalysis/rob_z", params_.preanalysis.rob_z, 0.0);
+        m_private_nh.param("preanalysis/robAngle", params_.preanalysis.robAngle, 0.0);
+        m_private_nh.param("preanalysis/dsMethod", params_.preanalysis.dsMethod, false);
+        m_private_nh.param("preanalysis/neMethod", params_.preanalysis.neMethod, 0);
+        m_private_nh.param("segmentationmode", params_.segmentationmode, 0);
+        m_private_nh.param("regiongrowing/enable", params_.regiongrowing.enable, false);
+        m_private_nh.param("regiongrowing/minClustSize", params_.regiongrowing.minClustSize, 30);
+        m_private_nh.param("regiongrowing/noNeigh", params_.regiongrowing.noNeigh, 24);
+        m_private_nh.param("regiongrowing/smoothFlag", params_.regiongrowing.smoothFlag, false);
+        m_private_nh.param("regiongrowing/smoothThresh", params_.regiongrowing.smoothThresh, 50.0);
+        m_private_nh.param("regiongrowing/resFlag", params_.regiongrowing.resFlag, true);
+        m_private_nh.param("regiongrowing/resThresh", params_.regiongrowing.resThresh, 0.08);
+        m_private_nh.param("regiongrowing/curvFlag", params_.regiongrowing.curvFlag, false);
+        m_private_nh.param("regiongrowing/curvThresh", params_.regiongrowing.curvThresh, 0.1);
+        m_private_nh.param("regiongrowing/updateFlag", params_.regiongrowing.updateFlag, true);
+        m_private_nh.param("regiongrowing/pointUpdateFlag", params_.regiongrowing.pointUpdateFlag, true);
+        m_private_nh.param("regiongrowing/updateInterval", params_.regiongrowing.updateInterval, 100);
+        m_private_nh.param("planeshape/widthReqMin", params_.planeshape.widthReqMin, 0.0);
+        m_private_nh.param("planeshape/widthReqMax", params_.planeshape.widthReqMax, 10.0);
+        m_private_nh.param("planeshape/treadDepthMin", params_.planeshape.treadDepthMin, 0.0);
+        m_private_nh.param("planeshape/treadDepthMax", params_.planeshape.treadDepthMax, 0.50);
+        m_private_nh.param("planeshape/riserHeightMin", params_.planeshape.riserHeightMin, 0.0);
+        m_private_nh.param("planeshape/riserHeightMax", params_.planeshape.riserHeightMax, 0.24);
+        m_private_nh.param("recognition/graphMeth", params_.recognition.graphMeth, false);
+        m_private_nh.param("recognition/optimizeFlag", params_.recognition.optimizeFlag, true);
+        m_private_nh.param("recognition/widthReqVecMin", params_.recognition.widthReqVecMin, 0.0);
+        m_private_nh.param("recognition/widthReqVecMax", params_.recognition.widthReqVecMax, 10.0);
+        m_private_nh.param("recognition/widthFlag", params_.recognition.widthFlag, true);
+        m_private_nh.param("recognition/parFlag", params_.recognition.parFlag, true);
+        m_private_nh.param("recognition/parAngle", params_.recognition.parAngle, 15.0);
+        m_private_nh.param("recognition/ndFlag", params_.recognition.ndFlag, true);
+        m_private_nh.param("recognition/nDistanceMin", params_.recognition.nDistanceMin, 0.11);
+        m_private_nh.param("recognition/nDistanceMax", params_.recognition.nDistanceMax, 0.24);
+        m_private_nh.param("recognition/pdFlag", params_.recognition.pdFlag, true);
+        m_private_nh.param("recognition/pDistanceMin", params_.recognition.pDistanceMin, 0.18);
+        m_private_nh.param("recognition/pDistanceMax", params_.recognition.pDistanceMax, 0.50);
+        m_private_nh.param("recognition/floorInformation", params_.recognition.floorInformation, false);
+        m_private_nh.param("recognition/updateFlag", params_.recognition.updateFlag, false);
+        m_private_nh.param("recognition/stairRailFlag", params_.recognition.stairRailFlag, false);
+        m_private_nh.param("recognition/predifinedValues", params_.recognition.predifinedValues, false);
+        m_private_nh.param("recognition/preDefDepth", params_.recognition.preDefDepth, 0.0);
+        m_private_nh.param("recognition/preDefHeight", params_.recognition.preDefHeight, 0.0);
+        m_private_nh.param("recognition/preDefWidth", params_.recognition.preDefWidth, 0.0);
+        m_private_nh.param("recognition/maxStairRiseDist", params_.recognition.maxStairRiseDist, 0.05);
+        m_private_nh.param("recognition/maxStairRiseHDist", params_.recognition.maxStairRiseHDist, 0.05);
+        m_private_nh.param("recognition/maxStairTreadDist", params_.recognition.maxStairTreadDist, 0.05);
+        m_private_nh.param("recognition/maxStairRiseAngle", params_.recognition.maxStairRiseAngle, 30.0);
+        m_private_nh.param("recognition/minStairIncAngle", params_.recognition.minStairIncAngle, 10.0);
+        m_private_nh.param("recognition/maxStairIncAngle", params_.recognition.maxStairIncAngle, 50.0);
 
         main_cloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("main_cloud",1);
         normal_cloud_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("normal_cloud",1);
@@ -98,6 +165,80 @@ public:
         nearest_step_pose_pub_ = m_private_nh.advertise<geometry_msgs::PoseStamped>("nearest_step_pose",1);
 
         ROS_INFO("Initialized.");
+    }
+
+    inline void cfgCb(stair_detection::StairDetectionConfig &config, uint32_t level)
+    {
+        ROS_INFO("Reconfigure requested.");
+
+        params_.preanalysis.dsFlag = config.groups.preanalysis.dsFlag;
+        params_.preanalysis.dsResolution = config.groups.preanalysis.dsResolution;
+        params_.preanalysis.neNeighMethod = config.groups.preanalysis.neNeighMethod;
+        params_.preanalysis.neSearchNeighbours = config.groups.preanalysis.neSearchNeighbours;
+        params_.preanalysis.neSearchRadius = config.groups.preanalysis.neSearchRadius;
+        params_.preanalysis.gpFlag = config.groups.preanalysis.gpFlag;
+        params_.preanalysis.gpAngle = config.groups.preanalysis.gpAngle;
+        params_.preanalysis.pfActive = config.groups.preanalysis.pfActive;
+        params_.preanalysis.pfAngle = config.groups.preanalysis.pfAngle;
+        params_.preanalysis.fsActive = config.groups.preanalysis.fsActive;
+        params_.preanalysis.fsAngle = config.groups.preanalysis.fsAngle;
+        params_.preanalysis.fsRange = config.groups.preanalysis.fsRange;
+        params_.preanalysis.rob_x = config.groups.preanalysis.rob_x;
+        params_.preanalysis.rob_y = config.groups.preanalysis.rob_y;
+        params_.preanalysis.rob_z = config.groups.preanalysis.rob_z;
+        params_.preanalysis.robAngle = config.groups.preanalysis.robAngle;
+        params_.preanalysis.dsMethod = config.groups.preanalysis.dsMethod;
+        params_.preanalysis.neMethod = config.groups.preanalysis.neMethod;
+
+        params_.segmentationmode = config.segmentationmode;
+
+        params_.regiongrowing.enable = config.groups.region_growing.enable;
+        params_.regiongrowing.minClustSize = config.groups.region_growing.minClustSize;
+        params_.regiongrowing.noNeigh = config.groups.region_growing.noNeigh;
+        params_.regiongrowing.smoothFlag = config.groups.region_growing.smoothFlag;
+        params_.regiongrowing.smoothThresh = config.groups.region_growing.smoothThresh;
+        params_.regiongrowing.resFlag = config.groups.region_growing.resFlag;
+        params_.regiongrowing.resThresh = config.groups.region_growing.resThresh;
+        params_.regiongrowing.curvFlag = config.groups.region_growing.curvFlag;
+        params_.regiongrowing.curvThresh = config.groups.region_growing.curvThresh;
+        params_.regiongrowing.updateFlag = config.groups.region_growing.rgUpdateFlag;
+        params_.regiongrowing.pointUpdateFlag = config.groups.region_growing.rgPointUpdateFlag;
+        params_.regiongrowing.updateInterval = config.groups.region_growing.updateInterval;
+
+        params_.planeshape.angleMargin = config.groups.planeshape.angleMargin;
+        params_.planeshape.widthReqMin = config.groups.planeshape.widthReqMin;
+        params_.planeshape.widthReqMax = config.groups.planeshape.widthReqMax;
+        params_.planeshape.treadDepthMin = config.groups.planeshape.treadDepthMin;
+        params_.planeshape.treadDepthMax = config.groups.planeshape.treadDepthMax;
+        params_.planeshape.riserHeightMin = config.groups.planeshape.riserHeightMin;
+        params_.planeshape.riserHeightMax = config.groups.planeshape.riserHeightMax;
+
+        params_.recognition.graphMeth = config.groups.recognition.graphMeth;
+        params_.recognition.optimizeFlag = config.groups.recognition.optimizeFlag;
+        params_.recognition.widthReqVecMin = config.groups.recognition.widthReqVecMin;
+        params_.recognition.widthReqVecMax = config.groups.recognition.widthReqVecMax;
+        params_.recognition.widthFlag = config.groups.recognition.widthFlag;
+        params_.recognition.parFlag = config.groups.recognition.parFlag;
+        params_.recognition.parAngle = config.groups.recognition.parAngle;
+        params_.recognition.ndFlag = config.groups.recognition.ndFlag;
+        params_.recognition.nDistanceMin = config.groups.recognition.nDistanceMin;
+        params_.recognition.nDistanceMax = config.groups.recognition.nDistanceMax;
+        params_.recognition.pdFlag = config.groups.recognition.pdFlag;
+        params_.recognition.pDistanceMin = config.groups.recognition.pDistanceMin;
+        params_.recognition.pDistanceMax = config.groups.recognition.pDistanceMax;
+        params_.recognition.floorInformation = config.groups.recognition.floorInformation;
+        params_.recognition.updateFlag = config.groups.recognition.recUpdateFlag;
+        params_.recognition.stairRailFlag = config.groups.recognition.stairRailFlag;
+        params_.recognition.predifinedValues = config.groups.recognition.predifinedValues;
+        params_.recognition.preDefDepth = config.groups.recognition.preDefDepth;
+        params_.recognition.preDefHeight = config.groups.recognition.preDefHeight;
+        params_.recognition.preDefWidth = config.groups.recognition.preDefWidth;
+        params_.recognition.maxStairRiseDist = config.groups.recognition.maxStairRiseDist;
+        params_.recognition.maxStairRiseHDist = config.groups.recognition.maxStairRiseHDist;
+        params_.recognition.maxStairTreadDist = config.groups.recognition.maxStairTreadDist;
+        params_.recognition.maxStairRiseAngle = config.groups.recognition.maxStairRiseAngle;
+        params_.recognition.minStairIncAngle = config.groups.recognition.minStairIncAngle;
+        params_.recognition.maxStairIncAngle = config.groups.recognition.maxStairIncAngle;
     }
 
     inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
@@ -129,7 +270,7 @@ public:
         double preAS = pcl::getTime();
 
         Preanalysis pre;
-        pre.loadConfig(config_["preanalysis"]);
+        pre.loadConfig(params_.preanalysis);
         NormalCloud::Ptr prepNomalCloud;
         prepNomalCloud.reset(new NormalCloud);
         PointCloudT floorPC;
@@ -169,7 +310,7 @@ public:
         {
             ROS_INFO("Using Region Growing algorithm");
             RegionGrowing reGrow;
-            reGrow.loadConfig(config_["regiongrowing"]);
+            reGrow.loadConfig(params_.regiongrowing);
             reGrow.setInputCloud(mainCloud);
             reGrow.setNormalCloud(prepNomalCloud);
             // extract and init segRegions with smooth regions
@@ -204,7 +345,7 @@ public:
 
         double pfS = pcl::getTime();
         planeshape psProc;
-        psProc.loadConfig(config_["planeshape"]);
+        psProc.loadConfig(params_.planeshape);
         regions stairTreads;
         regions stairRisers;
         psProc.setInputRegions(segRegions);
@@ -244,7 +385,7 @@ public:
 
         double refS = pcl::getTime();
         recognition stairDetect;
-        stairDetect.loadConfig(config_["recognition"]);
+        stairDetect.loadConfig(params_.recognition);
         stairDetect.setInputRegions(segRegions);
         stairDetect.setStairTreadRegions(stairTreads);
         stairDetect.setStairRiseRegions(stairRisers);

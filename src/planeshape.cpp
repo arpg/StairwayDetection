@@ -1,4 +1,4 @@
-#include <stairs/planeshape.h>
+#include <stair_detection/planeshape.h>
 
 planeshape::planeshape()
 {
@@ -10,17 +10,18 @@ planeshape::planeshape()
 	riserHeight << 0,0.24;
 }
 
-void planeshape::loadConfig(YAML::Node config)
+void planeshape::loadConfig(StairDetectionParams::PlaneshapeParams config)
 {
     // Angle difference allowed to horizontal (treads) or vertical (risers) plane
-	angleMargin = config["angleMargin"].as<float>();
+    angleMargin = config.angleMargin;
 	// Width requirement
-	widthReq << config["widthReqMin"].as<float>(),
-        config["widthReqMax"].as<float>();
-	treadDepth << config["treadDepthMin"].as<float>(),
-        config["treadDepthMax"].as<float>();
-	riserHeight << config["riserHeightMin"].as<float>(),
-        config["riserHeightMax"].as<float>();
+	widthReq[0] = config.widthReqMin;
+    widthReq[1] = config.widthReqMax;
+	treadDepth[0] = config.treadDepthMin;
+    treadDepth[1] = config.treadDepthMax;
+	riserHeight[0] = config.riserHeightMin;
+    riserHeight[1] = config.riserHeightMax;
+
 }
 
 void planeshape::filterSc(regions& stairTreads, regions& stairRisers)

@@ -3,14 +3,14 @@
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
 
-#include <stairs/preanalysis.h>
-#include <stairs/regions.h>
-#include <stairs/regiongrowing.h>
-#include <stairs/voxSAC.h>
-#include <stairs/splitmerge.h>
-#include <stairs/planeshape.h>
-#include <stairs/recognition.h>
-#include <stairs/StairVector.h>
+#include <stair_detection/preanalysis.h>
+#include <stair_detection/regions.h>
+#include <stair_detection/regiongrowing.h>
+#include <stair_detection/voxSAC.h>
+#include <stair_detection/splitmerge.h>
+#include <stair_detection/planeshape.h>
+#include <stair_detection/recognition.h>
+#include <stair_detection/StairVector.h>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointNormal PointNT;

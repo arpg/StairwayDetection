@@ -1,8 +1,8 @@
 #ifndef RECOGNITION
 #define RECOGNITION
 
-#include <stairs/regions.h>
-#include <stairs/StairVector.h>
+#include <stair_detection/regions.h>
+#include <stair_detection/StairVector.h>
 
 #include <pcl/common/centroid.h>
 #include <pcl/common/eigen.h>
@@ -15,7 +15,7 @@
 
 #include <pcl/visualization/pcl_visualizer.h>
 
-#include <yaml-cpp/yaml.h>
+#include <stair_detection/ros_functions.hpp> 
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointNormal PointNT;
@@ -34,7 +34,7 @@ public:
 
 	recognition();
 
-  void loadConfig(YAML::Node);
+  void loadConfig(StairDetectionParams::RecognitionParams);
 
   regions segments;
 

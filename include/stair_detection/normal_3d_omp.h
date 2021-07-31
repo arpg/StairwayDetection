@@ -163,7 +163,7 @@ namespace pcl
 }
 
 //#ifdef PCL_NO_PRECOMPILE
-#include <stairs/impl/normal_3d_omp.hpp>
+#include <stair_detection/impl/normal_3d_omp.hpp>
 //#endif
 
 #endif  //#ifndef PCL_NORMAL_3D_OMP_H_

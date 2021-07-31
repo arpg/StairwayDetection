@@ -5,7 +5,7 @@
  *      Author: tom
  */
 
-#include <stairs/regions.h>
+#include <stair_detection/regions.h>
 
 
 //using namespace std;

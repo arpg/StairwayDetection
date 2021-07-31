@@ -1,4 +1,4 @@
-#include <stairs/regiongrowing.h>
+#include <stair_detection/regiongrowing.h>
 
 RegionGrowing::RegionGrowing()
 {
@@ -95,29 +95,29 @@ void RegionGrowing::run(regions& output)
 //    output = segmentList;
 }
 
-void RegionGrowing::loadConfig(YAML::Node config)
+void RegionGrowing::loadConfig(StairDetectionParams::RegionGrowingParams config)
 {
     // Minimum cluster size //
-	minClustSize = config["minClustSize"].as<int>();
+	minClustSize = config.minClustSize;
     // Number of neighbors //
-	noNeigh = config["noNeigh"].as<int>();
+	noNeigh = config.noNeigh;
     // Smoothness flag (true = compare to seed point; false = compare to neighboring point) //
-	smoothFlag = config["smoothFlag"].as<bool>();
+	smoothFlag = config.smoothFlag;
     // Smoothness threshold //
-	smoothThresh = config["smoothThresh"].as<double>(); 
+	smoothThresh = config.smoothThresh;
     // Residual flag (true = compare to seed point; false = compare to neighboring point) //
-	resFlag = config["resFlag"].as<bool>();
+	resFlag = config.resFlag;
     // Residual distance //
-	resThresh = config["resThresh"].as<double>();
+	resThresh = config.resThresh;
     // Curvature flag //
-	curvFlag = config["curvFlag"].as<bool>();
+	curvFlag = config.curvFlag;
     // Curvature threshold //
-	curvThresh = config["curvThresh"].as<double>(); 
+	curvThresh = config.curvThresh; 
     // Update seed point during growing //
-	updateFlag = config["updateFlag"].as<bool>();
+	updateFlag = config.updateFlag;
     // Update pointwise //
-	pointUpdateFlag = config["pointUpdateFlag"].as<bool>();
+	pointUpdateFlag = config.pointUpdateFlag;
     // If not pointwise, update every: //
-	updateInterval = config["updateInterval"].as<int>();
+	updateInterval = config.updateInterval;
 }
 

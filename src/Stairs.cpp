@@ -5,7 +5,7 @@
  *      Author: tom
  */
 
-#include "stairs/Stairs.h"
+#include "stair_detection/Stairs.h"
 
 //using namespace std;
 

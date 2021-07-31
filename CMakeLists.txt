@@ -15,6 +15,7 @@ find_package(catkin REQUIRED
     #message_generation
     tf_conversions
     tf
+    dynamic_reconfigure
 )
 
 if( NOT CMAKE_BUILD_TYPE )
@@ -22,6 +23,10 @@ if( NOT CMAKE_BUILD_TYPE )
        "Choosing Release build type - the fastest option."
        FORCE )
 endif()
+
+generate_dynamic_reconfigure_options(
+  cfg/StairDetection.cfg
+)
 
 #add_message_files(
 #  DIRECTORY
@@ -68,9 +73,6 @@ target_link_libraries (stair_det
   yaml-cpp
   )
 
-project      (stair_detection)
-find_package (PCL 1.7.1 REQUIRED)
-
 #set  (project_SOURCES src/stairDetectionMain.cpp   src/regiongrowing.cpp src/preanalysis.cpp src/regiongrowing-orig.cpp src/regions.cpp src/segmentPatch.cpp src/clusteranalysis.cpp src/splitmerge.cpp src/recognition.cpp src/planeshape.cpp src/StairRegistration.cpp src/StairCoefficients.cpp src/Stairs.cpp src/StairVector.cpp src/referenceSegmentation.cpp src/voxelSAC.cpp src/RANSAC.cpp src/splitNormalEstimation.cpp)
 
 add_executable( stair_detection_node
@@ -87,10 +89,13 @@ add_executable( stair_detection_node
   src/recognition.cpp
   #src/prediction.cpp
 )
+add_dependencies( stair_detection_node
+  stair_detection_gencfg
+  stair_detection_gencpp
+)
 target_link_libraries( stair_detection_node
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
-  yaml-cpp
 )
 
 add_executable( example_stairs_publisher

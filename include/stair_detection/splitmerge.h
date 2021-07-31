@@ -13,8 +13,8 @@
 #include <boost/multi_array.hpp>
 #include <cassert>
 
-#include <stairs/segmentPatch.h>
-#include <stairs/regions.h>
+#include <stair_detection/segmentPatch.h>
+#include <stair_detection/regions.h>
 
 #include <deque>
 

@@ -14,7 +14,7 @@
 #include <pcl/common/transforms.h>
 #include <vector>
 
-#include "stairs/regions.h"
+#include "stair_detection/regions.h"
 
 #include <iostream>
 // #include <format>

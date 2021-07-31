@@ -8,7 +8,7 @@
 #ifndef STAIRVECTOR_H_
 #define STAIRVECTOR_H_
 
-#include "stairs/Stairs.h"
+#include "stair_detection/Stairs.h"
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointNormal PointNT;

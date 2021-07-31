@@ -1,4 +1,4 @@
-#include <stairs/voxSAC.h>
+#include <stair_detection/voxSAC.h>
 
 voxSAC::voxSAC() :
 	usedIndices(new std::vector<int> ())

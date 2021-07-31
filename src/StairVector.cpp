@@ -5,7 +5,7 @@
  *      Author: tom
  */
 
-#include "stairs/StairVector.h"
+#include "stair_detection/StairVector.h"
 
 StairVector::StairVector() {
 	// TODO Auto-generated constructor stub

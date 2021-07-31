@@ -1,8 +1,6 @@
 #ifndef PREANALYSIS_H
 #define PREANALYSIS_H
 
-#include <yaml-cpp/yaml.h>
-
 #include <pcl/octree/octree.h>
 #include <pcl/octree/octree_iterator.h>
 #include <pcl/filters/extract_indices.h>
@@ -10,8 +8,10 @@
 
 #include <pcl/filters/statistical_outlier_removal.h>
 
-//#include <stairs/normal_3d.h>
-#include <stairs/normal_3d_omp.h>
+//#include <stair_detection/normal_3d.h>
+#include <stair_detection/normal_3d_omp.h>
+
+#include <stair_detection/ros_functions.hpp>
 
 #include <pcl/common/time.h>
 
@@ -46,7 +46,7 @@ public:
     void floorExtraction();
     void run(PointCloudT::Ptr& input, NormalCloud::Ptr& normal, PointCloudC& colMap, PointCloudT& floorPoints, Eigen::Matrix4d& transformCloud);
 
-    void loadConfig(YAML::Node);
+    void loadConfig(StairDetectionParams::PreanalysisParams);
 
     inline
     void setDsResolution(double resolution)

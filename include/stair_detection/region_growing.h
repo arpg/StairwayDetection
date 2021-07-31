@@ -375,6 +375,6 @@ namespace pcl
   }
 }
 
-#include <stairs/impl/region_growing.hpp>
+#include <stair_detection/impl/region_growing.hpp>
 
 #endif

@@ -7,7 +7,7 @@
 #include <pcl/io/pcd_io.h>
 
 // #include <curvy_terrain_mapper/ros_functions.hpp>
-#include <stairs/regions.h>
+#include <stair_detection/regions.h>
 
 #include <string>
 
@@ -31,6 +31,81 @@ typedef pcl::PointCloud<PointT> PointCloudT;
 typedef pcl::PointCloud<PointNT> PointCloudN;
 typedef pcl::PointCloud<Normal> NormalCloud;
 typedef pcl::PointCloud<PointTC> PointCloudC;
+
+struct StairDetectionParams{
+    // std::string fixed_frame_id; // frame which input cloud is (transformed into and) processed, in this case it should be colocated with base_footprint and aligned with gravity
+    // bool pub_viz; // doesnt work rn
+    struct PreanalysisParams{
+        bool dsFlag; // Set if downsample active
+        double dsResolution; // Set downsample resolution
+        int neNeighMethod; // Normal estimation - find N neareast neighbors (:=0) - find points within distance (very slow) (:=1)
+        int neSearchNeighbours;
+        double neSearchRadius;
+        bool gpFlag; // Ghost point filter active?
+        double gpAngle; // Ghost point filter angle in degress
+        bool pfActive; // Point normal filter active?
+        double pfAngle; // Point normal filter angle in degress
+        bool fsActive; // Floor seperation active?
+        double fsAngle; // Floor seperation angle in degrees
+        double fsRange; // Floor seperation distance
+        double rob_x, rob_y, rob_z; // Set the position of the LIDAR (required for floor separation)
+        double robAngle; // Rotate pointcloud around z-axis
+        bool dsMethod; // Downsample method - Standard: flase - Experimental version: true
+        int neMethod; // Process ghost point filter and floor separation in separate steps
+    } preanalysis;
+    int segmentationmode; // 0 = Region Growing (recommended), 1 = Voxel SAC, 2 = Split & Merge
+    struct RegionGrowingParams{
+        bool enable; // Enable region growing
+        int minClustSize; // Minimum cluster size
+        int noNeigh; // Number of neighbors
+        bool smoothFlag; // Smoothness flag (true: compare to seed point false: compare to neighboring point)
+        double smoothThresh;  // Smoothness threshold
+        bool resFlag; // Residual flag (true: compare to seed point false: compare to neighboring point)
+        double resThresh;  // Residual distance
+        bool curvFlag; // Curvature flag
+        double curvThresh; // Curvature threshold (max)
+        bool updateFlag; // Update seed point during growing
+        bool pointUpdateFlag; //  Update pointwise
+        int updateInterval; // If not pointwise, update every
+    } regiongrowing;
+    struct PlaneshapeParams{
+        double angleMargin; // Angle difference allowed to horizontal (treads) or vertical (risers) plane
+        double widthReqMin; // Width requirement
+        double widthReqMax; // Width requirement
+        double treadDepthMin; // Width requirement
+        double treadDepthMax; // Width requirement
+        double riserHeightMin; // Width requirement
+        double riserHeightMax; // Width requirement
+    } planeshape;
+    struct RecognitionParams{
+        bool graphMeth; // graphMeth false for extended search - true for simple search
+        bool optimizeFlag; // use least-squared method to optimize parameters as post-processing
+        double widthReqVecMin; // Width requirement for the stairs
+        double widthReqVecMax; // Width requirement for the stairs
+        bool widthFlag; //Stair parts have to overlap in their width
+        bool parFlag; // Check the angle between stair parts
+        double parAngle; // Check the angle between stair parts, in degs
+        bool ndFlag; // Height distances
+        double nDistanceMin; // Height distances
+        double nDistanceMax; // Height distances
+        bool pdFlag; // Depth distances
+        double pDistanceMin; // Depth distances
+        double pDistanceMax; // Depth distances
+        bool floorInformation; // true for known floor - false for unknown (floor should be at z = 0.0)
+        bool updateFlag; // Update stair coefficients during graph extension - results are suboptimal - not recommended
+        bool stairRailFlag; // Extend the rail beyond the detected stairway
+        bool predifinedValues; // Set if you want to find stairs with known parameters
+        double preDefDepth; // Set if you want to find stairs with known parameters
+        double preDefHeight; // Set if you want to find stairs with known parameters
+        double preDefWidth; // Set if you want to find stairs with known parameters
+        double maxStairRiseDist; // stair distances (originally under run()
+        double maxStairRiseHDist; // stair distances (originally under run()
+        double maxStairTreadDist; // stair distances (originally under run()
+        double maxStairRiseAngle; // stair distances (originally under run(), in degs
+        double minStairIncAngle; // filter params, in degs
+        double maxStairIncAngle; // filter params, in degs
+    } recognition;
+};
 
 struct RGBColor{ float r, g, b; };
 inline RGBColor getRGBColor(double ratio)
@@ -438,44 +513,6 @@ inline bool getTransformFromTree(tf::TransformListener& listener, std::string pa
     return true;
 }
 
-
-struct StairDetectionParams{
-    std::string fixed_frame_id; // frame which input cloud is (transformed into and) processed, in this case it should be colocated with base_footprint and aligned with gravity
-    // bool pub_viz; // doesnt work rn
-    struct PreanalysisParams{
-        bool dsFlag; // Set if downsample active
-        double dsResolution; // Set downsample resolution
-        int neNeighMethod; // Normal estimation - find N neareast neighbors (:=0) - find points within distance (very slow) (:=1)
-        int neSearchNeighbours;
-        double neSearchRadius;
-        bool gpFlag; // Ghost point filter active?
-        double gpAngle; // Ghost point filter angle in degress
-        bool pfActive; // Point normal filter active?
-        double pfAngle; // Point normal filter angle in degress
-        bool fsActive; // Floor seperation active?
-        double fsAngle; // Floor seperation angle in degrees
-        double fsRange; // Floor seperation distance
-        double rob_x, rob_y, rob_z; // Set the position of the LIDAR (required for floor separation)
-        double robAngle; // Rotate pointcloud around z-axis
-        bool dsMethod; // Downsample method - Standard: flase - Experimental version: true
-        int neMethod; // Process ghost point filter and floor separation in separate steps
-    } preanalysis;
-    int segmentationmode; // 0 = Region Growing (recommended), 1 = Voxel SAC, 2 = Split & Merge
-    struct RegionGrowingParams{
-        bool enable; // Enable region growing
-        int minClustSize; // Minimum cluster size
-        int noNeigh; // Number of neighbors
-        bool smoothFlag; // Smoothness flag (true: compare to seed point false: compare to neighboring point)
-        double smoothThresh;  // Smoothness threshold
-        bool resFlag; // Residual flag (true: compare to seed point false: compare to neighboring point)
-        double resThresh;  // Residual distance
-        bool curvFlag; // Curvature flag
-        double curvThresh; // Curvature threshold (max)
-        bool updateFlag; // Update seed point during growing
-        bool pointUpdateFlag; //  Update pointwise
-        int updateInterval; // If not pointwise, update every
-    } regiongrowing;
-};
 
 
 #endif // ROS_FUNCTIONS_

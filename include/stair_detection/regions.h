@@ -8,7 +8,7 @@
 #ifndef REGIONS_H_
 #define REGIONS_H_
 
-#include <stairs/segmentPatch.h>
+#include <stair_detection/segmentPatch.h>
 #include <deque>
 #include <string>
 #include <iostream>

@@ -6,14 +6,14 @@
 #include <cassert>
 
 #include <pcl/point_types.h>
-#include <stairs/segmentPatch.h>
+#include <stair_detection/segmentPatch.h>
 #include <pcl/common/time.h>
 
 #include <pcl/octree/octree.h>
 #include <pcl/octree/octree_iterator.h>
 #include <pcl/filters/extract_indices.h>
 
-#include <stairs/regions.h>
+#include <stair_detection/regions.h>
 
 
 

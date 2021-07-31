@@ -1,12 +1,12 @@
 #ifndef PLANESHAPE
 #define PLANESHAPE
 
-#include <stairs/regions.h>
+#include <stair_detection/regions.h>
 #include <pcl/common/centroid.h>
 #include <pcl/common/eigen.h>
 #include <pcl/common/common.h>
 #include <pcl/common/transforms.h>
-#include <yaml-cpp/yaml.h>
+#include <stair_detection/ros_functions.hpp>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointNormal PointNT;
@@ -26,11 +26,9 @@ public:
     Eigen::Vector2f treadDepth;
     Eigen::Vector2f riserHeight;
 
-
-
     planeshape();
 
-    void loadConfig(YAML::Node);
+    void loadConfig(StairDetectionParams::PlaneshapeParams);
 
     inline void clear()
     {
