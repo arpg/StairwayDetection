@@ -57,9 +57,9 @@ private:
     ros::Publisher main_cloud_pub_;
     ros::Publisher normal_cloud_pub_;
     ros::Publisher seg_regions_pub_;
+    ros::Publisher seg_region_nums_pub_;
     ros::Publisher rise_regions_pub_;
     ros::Publisher tread_regions_pub_;
-    ros::Publisher tread_region_nums_pub_;
     ros::Publisher rise_cloud_pub_;
     ros::Publisher tread_cloud_pub_;
     ros::Publisher rail_cloud_pub_;
@@ -116,6 +116,7 @@ public:
         m_private_nh.param("regiongrowing/updateFlag", params_.regiongrowing.updateFlag, true);
         m_private_nh.param("regiongrowing/pointUpdateFlag", params_.regiongrowing.pointUpdateFlag, true);
         m_private_nh.param("regiongrowing/updateInterval", params_.regiongrowing.updateInterval, 100);
+        m_private_nh.param("planeshape/angleMargin", params_.planeshape.angleMargin, 0.0);
         m_private_nh.param("planeshape/widthReqMin", params_.planeshape.widthReqMin, 0.0);
         m_private_nh.param("planeshape/widthReqMax", params_.planeshape.widthReqMax, 10.0);
         m_private_nh.param("planeshape/treadDepthMin", params_.planeshape.treadDepthMin, 0.0);
@@ -152,9 +153,9 @@ public:
         main_cloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("main_cloud",1);
         normal_cloud_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("normal_cloud",1);
         seg_regions_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("segmented_regions", 1);
+        seg_region_nums_pub_ = m_private_nh.advertise<visualization_msgs::MarkerArray>("seg_region_nums",1);
         rise_regions_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("rise_regions", 1);
         tread_regions_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("tread_regions", 1);
-        tread_region_nums_pub_ = m_private_nh.advertise<visualization_msgs::MarkerArray>("tread_region_nums",1);
         rise_cloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("rise_cloud", 1);
         tread_cloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("tread_cloud", 1);
         rail_cloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("rail_cloud", 1);
@@ -338,6 +339,7 @@ public:
         ROS_INFO("Segmentation took: %f",segE-segS);
 
         pubCCloud(&seg_regions_pub_,segRegions,fixed_frame_id_,stamp_);
+        pubLabels(&seg_region_nums_pub_,segRegions,fixed_frame_id_,stamp_);
 
     // Starting plane finder - plane extraction //
 
@@ -353,11 +355,10 @@ public:
         psProc.filterSc(stairTreads, stairRisers);
 
         double pfE = pcl::getTime();
-        ROS_INFO("Plane filter took: %f",pfE-pfS);
+        ROS_INFO("Plane filter took %fs to find risers size %d, treads size %d",pfE-pfS,stairRisers.regs.size(), stairTreads.regs.size());
 
-        // pubCCloud(&rise_regions_pub_,stairRisers);
-        // pubCCloud(&tread_regions_pub_,stairTreads);
-        // pubLabels(&tread_region_nums_pub_,stairTreads);
+        if (!stairRisers.regs.empty()) pubCCloud(&rise_regions_pub_,stairRisers,fixed_frame_id_,stamp_);
+        if (!stairTreads.regs.empty()) pubCCloud(&tread_regions_pub_,stairTreads,fixed_frame_id_,stamp_);
 
     // eigen based stair detection/prediction
 
@@ -373,7 +374,6 @@ public:
 
         // pubCCloud(&rise_regions_pub_,stairRisers);
         // pubCCloud(&tread_regions_pub_,stairTreads);
-        // pubLabels(&tread_region_nums_pub_,stairTreads);
 
         // busy = false;
         // return;

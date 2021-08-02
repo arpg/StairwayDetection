@@ -1,5 +1,4 @@
-ros:
-  fixed_frame_id: base_link
+fixed_frame_id: base_link
 preanalysis:
   # Set if downsample active
   dsFlag: True
@@ -13,7 +12,7 @@ preanalysis:
   gpFlag: True
   # Ghost point filter angle in degress
   # gpAngle: 10.0
-  gpAngle: 25.0
+  gpAngle: 5.0
   # gpAngle: 45.0
   # gpAngle: 5.0
   # Point normal filter active?
@@ -44,7 +43,9 @@ regiongrowing:
   # Smoothness flag (true: compare to seed point false: compare to neighboring point) 
   smoothFlag: True
   # Smoothness threshold 
-  # smoothThresh: 50.0 
+  # smoothThresh for Lidar
+  # smoothThresh: 20.0
+  # smoothThresh for RGBD 
   smoothThresh: 30.0 
   # Residual flag (true: compare to seed point false: compare to neighboring point) 
   resFlag: True

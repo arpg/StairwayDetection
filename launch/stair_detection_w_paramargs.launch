@@ -1,0 +1,150 @@
+<launch>
+
+    <arg name="enable_debug" default="false"/>
+    <arg name="launch_prefix" default="" unless="$(arg enable_debug)"/>
+    <arg name="launch_prefix" default="gdb -ex run --args" if="$(arg enable_debug)"/>
+
+    <arg name="input_cloud_topic" default="cloud"/>
+    <arg name="output_whole_cloud_topic" default="stair_cloud"/>
+
+    <arg name="fixed_frame_id"                      default="map"/>
+    <arg name="preanalysis/dsFlag"                  default="true"/>
+    <arg name="preanalysis/dsResolution"            default="0.05"/>
+    <arg name="preanalysis/neNeighMethod"           default="0"/>
+    <arg name="preanalysis/neSearchNeighbours"      default="24"/>
+    <arg name="preanalysis/neSearchRadius"          default="0.2"/>
+    <arg name="preanalysis/gpFlag"                  default="true"/>
+    <arg name="preanalysis/gpAngle"                 default="1.0"/>
+    <arg name="preanalysis/pfActive"                default="false"/>
+    <arg name="preanalysis/pfAngle"                 default="20.0"/>
+    <arg name="preanalysis/fsActive"                default="false"/>
+    <arg name="preanalysis/fsAngle"                 default="30.0"/>
+    <arg name="preanalysis/fsRange"                 default="0.05"/>
+    <arg name="preanalysis/rob_x"                   default="0.0"/>
+    <arg name="preanalysis/rob_z"                   default="0.0"/>
+    <arg name="preanalysis/rob_y"                   default="0.0"/>
+    <arg name="preanalysis/robAngle"                default="0.0"/>
+    <arg name="preanalysis/dsMethod"                default="false"/>
+    <arg name="preanalysis/neMethod"                default="0"/>
+    <arg name="segmentationmode"                    default="0"/>
+    <arg name="regiongrowing/enable"                default="false"/>
+    <arg name="regiongrowing/minClustSize"          default="30"/>
+    <arg name="regiongrowing/noNeigh"               default="24"/>
+    <arg name="regiongrowing/smoothFlag"            default="false"/>
+    <arg name="regiongrowing/smoothThresh"          default="50.0"/>
+    <arg name="regiongrowing/resFlag"               default="true"/>
+    <arg name="regiongrowing/resThresh"             default="0.08"/>
+    <arg name="regiongrowing/curvFlag"              default="false"/>
+    <arg name="regiongrowing/curvThresh"            default="0.1"/>
+    <arg name="regiongrowing/updateFlag"            default="true"/>
+    <arg name="regiongrowing/pointUpdateFlag"       default="true"/>
+    <arg name="regiongrowing/updateInterval"        default="100"/>
+    <arg name="planeshape/angleMargin"              default="30.0"/>
+    <arg name="planeshape/widthReqMin"              default="0.0"/>
+    <arg name="planeshape/widthReqMax"              default="10.0"/>
+    <arg name="planeshape/treadDepthMin"            default="0.0"/>
+    <arg name="planeshape/treadDepthMax"            default="0.5"/>
+    <arg name="planeshape/riserHeightMin"           default="0.0"/>
+    <arg name="planeshape/riserHeightMax"           default="0.24"/>
+    <arg name="recognition/graphMeth"               default="false"/>
+    <arg name="recognition/optimizeFlag"            default="true"/>
+    <arg name="recognition/widthReqVecMin"          default="0.0"/>
+    <arg name="recognition/widthReqVecMax"          default="10.0"/>
+    <arg name="recognition/widthFlag"               default="false"/>
+    <arg name="recognition/parFlag"                 default="true"/>
+    <arg name="recognition/parAngle"                default="15.0"/>
+    <arg name="recognition/ndFlag"                  default="true"/>
+    <arg name="recognition/nDistanceMin"            default="0.11"/>
+    <arg name="recognition/nDistanceMax"            default="0.24"/>
+    <arg name="recognition/pdFlag"                  default="true"/>
+    <arg name="recognition/pDistanceMin"            default="0.18"/>
+    <arg name="recognition/pDistanceMax"            default="0.50"/>
+    <arg name="recognition/floorInformation"        default="false"/>
+    <arg name="recognition/updateFlag"              default="false"/>
+    <arg name="recognition/stairRailFlag"           default="false"/>
+    <arg name="recognition/predifinedValues"        default="false"/>
+    <arg name="recognition/preDefDepth"             default="0.0"/>
+    <arg name="recognition/preDefHeight"            default="0.0"/>
+    <arg name="recognition/preDefWidth"             default="0.0"/>
+    <arg name="recognition/maxStairRiseDist"        default="0.05"/>
+    <arg name="recognition/maxStairRiseHDist"       default="0.05"/>
+    <arg name="recognition/maxStairTreadDist"       default="0.05"/>
+    <arg name="recognition/maxStairRiseAngle"       default="30.0"/>
+    <arg name="recognition/minStairIncAngle"        default="10.0"/>
+    <arg name="recognition/maxStairIncAngle"        default="50.0"/>
+
+    <node pkg="stair_detection" type="stair_detection_node" name="stair_detector" output="log" launch-prefix="$(arg launch_prefix)" respawn="true">
+        <remap from="~input_cloud" to="$(arg input_cloud_topic)"/>
+        <remap from="~is_stair_cloud" to="$(arg output_whole_cloud_topic)"/>
+
+        <param name="~fixed_frame_id"                       value="$(arg fixed_frame_id)"/>
+        <param name="~preanalysis/dsFlag"                   value="$(arg preanalysis/dsFlag)"/>
+        <param name="~preanalysis/dsResolution"             value="$(arg preanalysis/dsResolution)"/>
+        <param name="~preanalysis/neNeighMethod"            value="$(arg preanalysis/neNeighMethod)"/>
+        <param name="~preanalysis/neSearchNeighbours"       value="$(arg preanalysis/neSearchNeighbours)"/>
+        <param name="~preanalysis/neSearchRadius"           value="$(arg preanalysis/neSearchRadius)"/>
+        <param name="~preanalysis/gpFlag"                   value="$(arg preanalysis/gpFlag)"/>
+        <param name="~preanalysis/gpAngle"                  value="$(arg preanalysis/gpAngle)"/>
+        <param name="~preanalysis/pfActive"                 value="$(arg preanalysis/pfActive)"/>
+        <param name="~preanalysis/pfAngle"                  value="$(arg preanalysis/pfAngle)"/>
+        <param name="~preanalysis/fsActive"                 value="$(arg preanalysis/fsActive)"/>
+        <param name="~preanalysis/fsAngle"                  value="$(arg preanalysis/fsAngle)"/>
+        <param name="~preanalysis/fsRange"                  value="$(arg preanalysis/fsRange)"/>
+        <param name="~preanalysis/rob_x"                    value="$(arg preanalysis/rob_x)"/>
+        <param name="~preanalysis/rob_y"                    value="$(arg preanalysis/rob_y)"/>
+        <param name="~preanalysis/rob_z"                    value="$(arg preanalysis/rob_z)"/>
+        <param name="~preanalysis/robAngle"                 value="$(arg preanalysis/robAngle)"/>
+        <param name="~preanalysis/dsMethod"                 value="$(arg preanalysis/dsMethod)"/>
+        <param name="~preanalysis/neMethod"                 value="$(arg preanalysis/neMethod)"/>
+        <param name="~segmentationmode"                     value="$(arg segmentationmode)"/>
+        <param name="~regiongrowing/enable"                 value="$(arg regiongrowing/enable)"/>
+        <param name="~regiongrowing/minClustSize"           value="$(arg regiongrowing/minClustSize)"/>
+        <param name="~regiongrowing/noNeigh"                value="$(arg regiongrowing/noNeigh)"/>
+        <param name="~regiongrowing/smoothFlag"             value="$(arg regiongrowing/smoothFlag)"/>
+        <param name="~regiongrowing/smoothThresh"           value="$(arg regiongrowing/smoothThresh)"/>
+        <param name="~regiongrowing/resFlag"                value="$(arg regiongrowing/resFlag)"/>
+        <param name="~regiongrowing/resThresh"              value="$(arg regiongrowing/resThresh)"/>
+        <param name="~regiongrowing/curvFlag"               value="$(arg regiongrowing/curvFlag)"/>
+        <param name="~regiongrowing/curvThresh"             value="$(arg regiongrowing/curvThresh)"/>
+        <param name="~regiongrowing/updateFlag"             value="$(arg regiongrowing/updateFlag)"/>
+        <param name="~regiongrowing/pointUpdateFlag"        value="$(arg regiongrowing/pointUpdateFlag)"/>
+        <param name="~regiongrowing/updateInterval"         value="$(arg regiongrowing/updateInterval)"/>
+        <param name="~planeshape/angleMargin"               value="$(arg planeshape/angleMargin)"/>
+        <param name="~planeshape/widthReqMin"               value="$(arg planeshape/widthReqMin)"/>
+        <param name="~planeshape/widthReqMax"               value="$(arg planeshape/widthReqMax)"/>
+        <param name="~planeshape/treadDepthMin"             value="$(arg planeshape/treadDepthMin)"/>
+        <param name="~planeshape/treadDepthMax"             value="$(arg planeshape/treadDepthMax)"/>
+        <param name="~planeshape/riserHeightMin"            value="$(arg planeshape/riserHeightMin)"/>
+        <param name="~planeshape/riserHeightMax"            value="$(arg planeshape/riserHeightMax)"/>
+        <param name="~recognition/graphMeth"                value="$(arg recognition/graphMeth)"/>
+        <param name="~recognition/optimizeFlag"             value="$(arg recognition/optimizeFlag)"/>
+        <param name="~recognition/widthReqVecMin"           value="$(arg recognition/widthReqVecMin)"/>
+        <param name="~recognition/widthReqVecMax"           value="$(arg recognition/widthReqVecMax)"/>
+        <param name="~recognition/widthFlag"                value="$(arg recognition/widthFlag)"/>
+        <param name="~recognition/parFlag"                  value="$(arg recognition/parFlag)"/>
+        <param name="~recognition/parAngle"                 value="$(arg recognition/parAngle)"/>
+        <param name="~recognition/ndFlag"                   value="$(arg recognition/ndFlag)"/>
+        <param name="~recognition/nDistanceMin"             value="$(arg recognition/nDistanceMin)"/>
+        <param name="~recognition/nDistanceMax"             value="$(arg recognition/nDistanceMax)"/>
+        <param name="~recognition/pdFlag"                   value="$(arg recognition/pdFlag)"/>
+        <param name="~recognition/pDistanceMin"             value="$(arg recognition/pDistanceMin)"/>
+        <param name="~recognition/pDistanceMax"             value="$(arg recognition/pDistanceMax)"/>
+        <param name="~recognition/floorInformation"         value="$(arg recognition/floorInformation)"/>
+        <param name="~recognition/updateFlag"               value="$(arg recognition/updateFlag)"/>
+        <param name="~recognition/stairRailFlag"            value="$(arg recognition/stairRailFlag)"/>
+        <param name="~recognition/predifinedValues"         value="$(arg recognition/predifinedValues)"/>
+        <param name="~recognition/preDefDepth"              value="$(arg recognition/preDefDepth)"/>
+        <param name="~recognition/preDefHeight"             value="$(arg recognition/preDefHeight)"/>
+        <param name="~recognition/preDefWidth"              value="$(arg recognition/preDefWidth)"/>
+        <param name="~recognition/maxStairRiseDist"         value="$(arg recognition/maxStairRiseDist)"/>
+        <param name="~recognition/maxStairRiseHDist"        value="$(arg recognition/maxStairRiseHDist)"/>
+        <param name="~recognition/maxStairTreadDist"        value="$(arg recognition/maxStairTreadDist)"/>
+        <param name="~recognition/maxStairRiseAngle"        value="$(arg recognition/maxStairRiseAngle)"/>
+        <param name="~recognition/minStairIncAngle"         value="$(arg recognition/minStairIncAngle)"/>
+        <param name="~recognition/maxStairIncAngle"         value="$(arg recognition/maxStairIncAngle)"/>
+    </node>
+
+    <!-- <node pkg="rviz" type="rviz" name="rviz"
+    args="-d $(find stair_detection)/stair_detection.rviz"/> -->
+
+</launch>
