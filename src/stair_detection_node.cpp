@@ -104,7 +104,6 @@ public:
         m_private_nh.param("preanalysis/dsMethod", params_.preanalysis.dsMethod, false);
         m_private_nh.param("preanalysis/neMethod", params_.preanalysis.neMethod, 0);
         m_private_nh.param("segmentationmode", params_.segmentationmode, 0);
-        m_private_nh.param("regiongrowing/enable", params_.regiongrowing.enable, false);
         m_private_nh.param("regiongrowing/minClustSize", params_.regiongrowing.minClustSize, 30);
         m_private_nh.param("regiongrowing/noNeigh", params_.regiongrowing.noNeigh, 24);
         m_private_nh.param("regiongrowing/smoothFlag", params_.regiongrowing.smoothFlag, false);
@@ -193,7 +192,6 @@ public:
 
         params_.segmentationmode = config.segmentationmode;
 
-        params_.regiongrowing.enable = config.groups.region_growing.enable;
         params_.regiongrowing.minClustSize = config.groups.region_growing.minClustSize;
         params_.regiongrowing.noNeigh = config.groups.region_growing.noNeigh;
         params_.regiongrowing.smoothFlag = config.groups.region_growing.smoothFlag;

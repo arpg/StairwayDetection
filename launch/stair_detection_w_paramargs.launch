@@ -27,7 +27,6 @@
     <arg name="preanalysis/dsMethod"                default="false"/>
     <arg name="preanalysis/neMethod"                default="0"/>
     <arg name="segmentationmode"                    default="0"/>
-    <arg name="regiongrowing/enable"                default="false"/>
     <arg name="regiongrowing/minClustSize"          default="30"/>
     <arg name="regiongrowing/noNeigh"               default="24"/>
     <arg name="regiongrowing/smoothFlag"            default="false"/>
@@ -97,7 +96,6 @@
         <param name="~preanalysis/dsMethod"                 value="$(arg preanalysis/dsMethod)"/>
         <param name="~preanalysis/neMethod"                 value="$(arg preanalysis/neMethod)"/>
         <param name="~segmentationmode"                     value="$(arg segmentationmode)"/>
-        <param name="~regiongrowing/enable"                 value="$(arg regiongrowing/enable)"/>
         <param name="~regiongrowing/minClustSize"           value="$(arg regiongrowing/minClustSize)"/>
         <param name="~regiongrowing/noNeigh"                value="$(arg regiongrowing/noNeigh)"/>
         <param name="~regiongrowing/smoothFlag"             value="$(arg regiongrowing/smoothFlag)"/>
