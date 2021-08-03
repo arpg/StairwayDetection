@@ -90,6 +90,8 @@ namespace pcl
       double pfAngleHigh;
       double pfAngleLow;
 
+      Eigen::Vector3f robPos;
+
       std::vector<int> floorIndices;
       std::vector<int> ghostPointIndices;
       std::vector<int> normalFilterIndices;
@@ -139,6 +141,10 @@ namespace pcl
       {
     	  pfAngleHigh = cos(input/180*M_PI);
     	  pfAngleLow = cos((90-input)/180*M_PI);
+      }
+      inline void setRobPos(Eigen::Vector3f& pos)
+      {
+        robPos = pos;
       }
 
       /** \brief Initialize the scheduler and set the number of threads to use.

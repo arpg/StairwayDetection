@@ -54,8 +54,6 @@ pcl::NormalEstimationOMP<PointInT, PointOutT>::computeFeature (PointCloudOut &ou
   std::vector<bool> floorPositions (input_->size(),false);
   std::vector<bool> ghostPointsPos (input_->size(),false);
   std::vector<bool> normalFilterPos (input_->size(),false);
-  Eigen::Vector3f rob_pos;
-  rob_pos << 0.2 , 0, 0.35;
 
   output.is_dense = true;
 
@@ -91,7 +89,7 @@ pcl::NormalEstimationOMP<PointInT, PointOutT>::computeFeature (PointCloudOut &ou
                                   output.points[idx].normal[2]);
 
       //Floor separation
-      if(fabs(input_->points[idx].z) < fsRange)
+      if(fabs(input_->points[idx].z-robPos[2]) < fsRange)
       {
     	  if(fabs(output.points[idx].normal_z) > fsAngle)
     	  {
@@ -110,7 +108,7 @@ pcl::NormalEstimationOMP<PointInT, PointOutT>::computeFeature (PointCloudOut &ou
       //Ghost point elimination
       Eigen::Vector3f pointPos;
       pointPos << input_->points[idx].x, input_->points[idx].y, input_->points[idx].z;
-      pointPos -=rob_pos;
+      pointPos -=robPos;
       pointPos.normalize();
       if( fabs(pointPos.dot(n.head(3))) < gpAngle )
       {
@@ -158,7 +156,7 @@ pcl::NormalEstimationOMP<PointInT, PointOutT>::computeFeature (PointCloudOut &ou
                                   output.points[idx].normal[2]);
 
       //Floor separation
-      if(fabs(input_->points[idx].z) < fsRange)
+      if(fabs(input_->points[idx].z-robPos[2]) < fsRange)
       {
     	  if(fabs(output.points[idx].normal_z) > fsAngle)
     	  {
@@ -170,7 +168,7 @@ pcl::NormalEstimationOMP<PointInT, PointOutT>::computeFeature (PointCloudOut &ou
       //Ghost point elimination
       Eigen::Vector3f pointPos;
       pointPos << input_->points[idx].x, input_->points[idx].y, input_->points[idx].z;
-      pointPos -=rob_pos;
+      pointPos -=robPos;
       pointPos.normalize();
       if( fabs(pointPos.dot(n.head(3))) < gpAngle )
       {
@@ -224,7 +222,7 @@ pcl::NormalEstimationOMP<PointInT, PointOutT>::computeFeature (PointCloudOut &ou
       //Ghost point elimination
       Eigen::Vector3f pointPos;
       pointPos << input_->points[idx].x, input_->points[idx].y, input_->points[idx].z;
-      pointPos -=rob_pos;
+      pointPos -=robPos;
       pointPos.normalize();
       if( fabs(pointPos.dot(n.head(3))) < gpAngle )
       {
@@ -269,7 +267,7 @@ pcl::NormalEstimationOMP<PointInT, PointOutT>::computeFeature (PointCloudOut &ou
                                   output.points[idx].normal[2]);
 
       //Floor separation
-      if(fabs(input_->points[idx].z) < fsRange)
+      if(fabs(input_->points[idx].z-robPos[2]) < fsRange)
       {
     	  if(fabs(output.points[idx].normal_z) > fsAngle)
     	  {
@@ -364,7 +362,7 @@ pcl::NormalEstimationOMP<PointInT, PointOutT>::computeFeature (PointCloudOut &ou
                                   output.points[idx].normal[2]);
 
       //Floor separation
-      if(fabs(input_->points[idx].z) < fsRange)
+      if(fabs(input_->points[idx].z-robPos[2]) < fsRange)
       {
     	  if(fabs(output.points[idx].normal_z) > fsAngle)
     	  {
@@ -410,7 +408,7 @@ pcl::NormalEstimationOMP<PointInT, PointOutT>::computeFeature (PointCloudOut &ou
       //Ghost point elimination
       Eigen::Vector3f pointPos;
       pointPos << input_->points[idx].x, input_->points[idx].y, input_->points[idx].z;
-      pointPos -=rob_pos;
+      pointPos -=robPos;
       pointPos.normalize();
       if( fabs(pointPos.dot(n.head(3))) < gpAngle )
       {

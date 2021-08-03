@@ -224,17 +224,20 @@ void Preanalysis::normalEstimation()
     ne.setSearchMethod (tree_n);
 
 
-    ne.setGpActive(gpFlag);
+    ne.setGpActive(gpFlag && (neMethod==0));
     gpAngle = gpAngle / 180 * M_PI;
     gpAngle = sin(gpAngle);
     ne.setGpAngle(gpAngle);
 
-    ne.setFsActive(fsActive);
+    ne.setFsActive(fsActive && (neMethod==0));
     ne.setFsAngle(fsAngle);
     ne.setFsRange(fsRange);
 
     ne.setPfActive(pfActive);
     ne.setPfAngle(pfAngle);
+
+    Eigen::Vector3f rob_pos(rob_x,rob_y,rob_z);
+    ne.setRobPos(rob_pos);
 
     ne.setNumberOfThreads(1); // Inconsistent to suddenly use more cores //
 
@@ -340,7 +343,7 @@ void Preanalysis::floorExtraction()
 
    for(size_t filtCounter=0;filtCounter < pc->size();filtCounter++)
    {
-       if(pc->at(filtCounter).z < z_high && pc->at(filtCounter).z > z_low)
+       if((pc->at(filtCounter).z-rob_z) < z_high && (pc->at(filtCounter).z-rob_z) > z_low)
        {
            floorPC.push_back(pc->at(filtCounter));
            floorNormal.push_back(normal_cloud->at(filtCounter));
