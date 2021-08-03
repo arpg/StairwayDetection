@@ -306,10 +306,9 @@ public:
     // Starting segmentation //
 
         ROS_INFO("Starting segmentation");
-        int mode = 0;
         double segS = pcl::getTime();
         regions segRegions;
-        if(mode == 0)
+        if(params_.segmentationmode == 0)
         {
             ROS_INFO("Using Region Growing algorithm");
             RegionGrowing reGrow;
@@ -319,7 +318,7 @@ public:
             // extract and init segRegions with smooth regions
             reGrow.run(segRegions);
         }
-        if(mode == 1)
+        if(params_.segmentationmode == 1)
         {
             ROS_INFO("Using Voxel SAC algorithm");
             voxSAC voxelSAC;
@@ -327,7 +326,7 @@ public:
             voxelSAC.setNormalCloud(prepNomalCloud);
             voxelSAC.run(segRegions);
         }
-        if(mode == 2)
+        if(params_.segmentationmode == 2)
         {
             ROS_INFO("Using Split & Merge algorithm");
             splitMerge sam;
