@@ -437,15 +437,20 @@ public:
           }
 
           pcl::PointCloud<pcl::PointXYZI> isStairCloud;
-          for (uint i=0; i<mainCloud->points.size(); i++) {
+          // pcl::PointCloud<pcl::PointXYZ>::Ptr mainCloudWithFloor(new pcl::PointCloud<pcl::PointXYZ>(*mainCloud + floorPC));
+          // pcl::PointCloud<pcl::PointXYZ>::Ptr mainCloudWithFloor;
+          // (*mainCloudWithFloor) += *mainCloud;
+          pcl::PointCloud<pcl::PointXYZ>::Ptr mainCloudWithFloor(new pcl::PointCloud<pcl::PointXYZ>(*mainCloud));
+          (*mainCloudWithFloor) += floorPC;
+          for (uint i=0; i<mainCloudWithFloor->points.size(); i++) {
               pcl::PointXYZI bpt;
-              bpt.x = mainCloud->points[i].x;
-              bpt.y = mainCloud->points[i].y;
-              bpt.z = mainCloud->points[i].z;
+              bpt.x = mainCloudWithFloor->points[i].x;
+              bpt.y = mainCloudWithFloor->points[i].y;
+              bpt.z = mainCloudWithFloor->points[i].z;
               bpt.intensity = 0.f;
               float ptStairDistThresh = 0.005;
               for (uint j=0; j<wholeStairCloud.points.size(); j++) {
-                  if (pcl::euclideanDistance(mainCloud->points[i],wholeStairCloud.points[j])<ptStairDistThresh) {
+                  if (pcl::euclideanDistance(mainCloudWithFloor->points[i],wholeStairCloud.points[j])<ptStairDistThresh) {
                       bpt.intensity = 1.f;
                       continue;
                   }

@@ -50,10 +50,10 @@ Preanalysis::Preanalysis()
 
 
 void Preanalysis::run(
-    PointCloudT::Ptr& input, 
-    NormalCloud::Ptr& normal, 
-    PointCloudC& colMap, 
-    PointCloudT& floorPoints, 
+    PointCloudT::Ptr& input,
+    NormalCloud::Ptr& normal,
+    PointCloudC& colMap,
+    PointCloudT& floorPoints,
     Eigen::Matrix4d& transformCloud
     )
 {
