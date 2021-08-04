@@ -39,7 +39,7 @@ typedef pcl::PointCloud<PointNT> PointCloudN;
 typedef pcl::PointCloud<Normal> NormalCloud;
 typedef pcl::PointCloud<PointTC> PointCloudC;
 
-class StairDetection 
+class StairDetection
 {
 private:
     boost::mutex mutex_;
@@ -60,6 +60,8 @@ private:
     ros::Publisher seg_region_nums_pub_;
     ros::Publisher rise_regions_pub_;
     ros::Publisher tread_regions_pub_;
+    ros::Publisher risers_region_nums_pub_;
+    ros::Publisher treads_region_nums_pub_;
     ros::Publisher rise_cloud_pub_;
     ros::Publisher tread_cloud_pub_;
     ros::Publisher rail_cloud_pub_;
@@ -78,7 +80,7 @@ public:
     {
         // config_ = YAML::LoadFile(config_filepath_);
         // params_.fixed_frame_id = config_["ros"]["fixed_frame_id"].as<std::string>();
-        
+
         input_sub = m_private_nh.subscribe("input_cloud",1,&StairDetection::inputCB,this);
 
         cfg_server_.setCallback(boost::bind(&StairDetection::cfgCb, this, _1, _2));
@@ -155,6 +157,8 @@ public:
         seg_region_nums_pub_ = m_private_nh.advertise<visualization_msgs::MarkerArray>("seg_region_nums",1);
         rise_regions_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("rise_regions", 1);
         tread_regions_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("tread_regions", 1);
+        risers_region_nums_pub_ = m_private_nh.advertise<visualization_msgs::MarkerArray>("risers_region_nums",1);
+        treads_region_nums_pub_ = m_private_nh.advertise<visualization_msgs::MarkerArray>("treads_region_nums",1);
         rise_cloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("rise_cloud", 1);
         tread_cloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("tread_cloud", 1);
         rail_cloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("rail_cloud", 1);
@@ -357,6 +361,8 @@ public:
 
         if (!stairRisers.regs.empty()) pubCCloud(&rise_regions_pub_,stairRisers,fixed_frame_id_,stamp_);
         if (!stairTreads.regs.empty()) pubCCloud(&tread_regions_pub_,stairTreads,fixed_frame_id_,stamp_);
+        pubLabels(&risers_region_nums_pub_,stairRisers,fixed_frame_id_,stamp_);
+        pubLabels(&treads_region_nums_pub_,stairTreads,fixed_frame_id_,stamp_);
 
     // eigen based stair detection/prediction
 
@@ -418,39 +424,40 @@ public:
         ROS_INFO("Refinement took: %f",refE-refS);
         ROS_INFO("Total time  took: %f",refE-loadS);
 
-        if (detectedStairs.size() > 0)
         {
-            pubTCloud(&rise_cloud_pub_,detectedStairs.at(0).stairRiseCloud,fixed_frame_id_);
-            pubTCloud(&tread_cloud_pub_,detectedStairs.at(0).stairTreadCloud,fixed_frame_id_);
-            pubTCloud(&rail_cloud_pub_,detectedStairs.at(0).stairRailCloud,fixed_frame_id_);
-            PointCloudT wholeStairCloud;
-            wholeStairCloud += detectedStairs.at(0).stairRiseCloud;
-            wholeStairCloud += detectedStairs.at(0).stairTreadCloud;
-            // wholeStairCloud += detectedStairs.at(0).stairRailCloud;
-            pubTCloud(&whole_cloud_pub_, wholeStairCloud,fixed_frame_id_,stamp_);
-            
-            pcl::PointCloud<pcl::PointXYZI> isStairCloud;
-            for (uint i=0; i<mainCloud->points.size(); i++) {
-                pcl::PointXYZI bpt;
-                bpt.x = mainCloud->points[i].x;
-                bpt.y = mainCloud->points[i].y;
-                bpt.z = mainCloud->points[i].z;
-                bpt.intensity = 0.f;
-                float ptStairDistThresh = 0.01;
-                for (uint j=0; j<wholeStairCloud.points.size(); j++) {
-                    if (pcl::euclideanDistance(mainCloud->points[i],wholeStairCloud.points[j])<ptStairDistThresh) {
-                        bpt.intensity = 1.f;    
-                        continue;
-                    }
-                }
-                isStairCloud.points.push_back(bpt);
-            }
-            sensor_msgs::PointCloud2 cloud_msg;
-            pcl::toROSMsg(isStairCloud, cloud_msg);
-            cloud_msg.header.frame_id = fixed_frame_id_;
-            cloud_msg.header.stamp = stamp_;
-            is_stair_cloud_pub_.publish(cloud_msg);
-            // ros::spinOnce();
+          PointCloudT wholeStairCloud;
+          for (uint i=0; i<detectedStairs.size(); i++)
+          {
+              // if (detectedStairs.at(i).stairScore[0]>0.9 && detectedStairs.at(i).stairScore[1]>0.9 && detectedStairs.at(i).stairScore[2]>0.9) {
+              // if (detectedStairs.at(i).accuracy > 0.1) {
+              if (detectedStairs.at(i).stairScore[1]>0.9) {
+                wholeStairCloud += detectedStairs.at(i).stairRiseCloud;
+                wholeStairCloud += detectedStairs.at(i).stairTreadCloud;
+                // wholeStairCloud += detectedStairs.at(0).stairRailCloud;
+              }
+          }
+
+          pcl::PointCloud<pcl::PointXYZI> isStairCloud;
+          for (uint i=0; i<mainCloud->points.size(); i++) {
+              pcl::PointXYZI bpt;
+              bpt.x = mainCloud->points[i].x;
+              bpt.y = mainCloud->points[i].y;
+              bpt.z = mainCloud->points[i].z;
+              bpt.intensity = 0.f;
+              float ptStairDistThresh = 0.005;
+              for (uint j=0; j<wholeStairCloud.points.size(); j++) {
+                  if (pcl::euclideanDistance(mainCloud->points[i],wholeStairCloud.points[j])<ptStairDistThresh) {
+                      bpt.intensity = 1.f;
+                      continue;
+                  }
+              }
+              isStairCloud.points.push_back(bpt);
+          }
+          sensor_msgs::PointCloud2 cloud_msg;
+          pcl::toROSMsg(isStairCloud, cloud_msg);
+          cloud_msg.header.frame_id = fixed_frame_id_;
+          cloud_msg.header.stamp = stamp_;
+          is_stair_cloud_pub_.publish(cloud_msg);
         }
 
     // Printing out the results //
@@ -485,7 +492,7 @@ public:
 
                 float slope = atan(stairCoefficients.dir[2] / sqrt(pow(stairCoefficients.dir[0],2) + pow(stairCoefficients.dir[1],2)));
 
-                ROS_INFO("-");
+                ROS_INFO("- %d -", stairCoeffIdx);
                 ROS_INFO("Step depth:   %f",round(1000*sqrt(pow(stairCoefficients.dir[0],2) + pow(stairCoefficients.dir[1],2))));
                 ROS_INFO("Step height:  %f",round(1000*stairCoefficients.dir[2]));
                 ROS_INFO("Step width:   %f",round(1000*stairCoefficients.width));
@@ -500,7 +507,7 @@ public:
                 sepDist[0] = cos(stairAngle) * xStairDist + sin(stairAngle) * yStairDist;
                 sepDist[1] = - sin(stairAngle) * xStairDist + cos(stairAngle) * yStairDist;
 
-                ROS_INFO("-");
+                // ROS_INFO("-");
                 ROS_INFO("Dist in X is: %f",round(1000*(stairCoefficients.pos[0])));
                 ROS_INFO("Dist in Y is: %f",round(1000*stairCoefficients.pos[1]));
 
@@ -518,13 +525,12 @@ public:
 
         } // if(detectedStairs.size()>0)
 
-        if(detectedStairs.size()>0)
+        for(int stairCoeffIdx =0; stairCoeffIdx < detectedStairs.size(); stairCoeffIdx++)
         {
-            uint stairCoeffIdx = 0;
-
             Stairs stairCoefficients = detectedStairs.at(stairCoeffIdx);
             regions stairParts = stairCoefficients.stairParts;
             std::vector<int> planeLabels = stairCoefficients.planeLabels;
+            ROS_INFO("- %d -", stairCoeffIdx);
             ROS_INFO(stairCoefficients.str().c_str());
 
             pubCCloud(&stair_parts_pub_,stairParts,fixed_frame_id_,stamp_);

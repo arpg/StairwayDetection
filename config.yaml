@@ -35,31 +35,32 @@ preanalysis:
   dsMethod: False
   # Process ghost point filter and floor separation in separate steps
   neMethod: 0
+segmentationmode: 0
 regiongrowing:
-  # Minimum cluster size 
+  # Minimum cluster size
   minClustSize: 30
   # Number of neighbors
   noNeigh: 24
-  # Smoothness flag (true: compare to seed point false: compare to neighboring point) 
+  # Smoothness flag (true: compare to seed point false: compare to neighboring point)
   smoothFlag: True
-  # Smoothness threshold 
+  # Smoothness threshold
   # smoothThresh for Lidar
   # smoothThresh: 20.0
-  # smoothThresh for RGBD 
-  smoothThresh: 30.0 
-  # Residual flag (true: compare to seed point false: compare to neighboring point) 
+  # smoothThresh for RGBD
+  smoothThresh: 30.0
+  # Residual flag (true: compare to seed point false: compare to neighboring point)
   resFlag: True
-  # Residual distance 
-  resThresh: 0.08 
-  # Curvature flag 
+  # Residual distance
+  resThresh: 0.08
+  # Curvature flag
   curvFlag: False
-  # Curvature threshold 
+  # Curvature threshold
   curvThresh: 0.1
-  # Update seed point during growing 
+  # Update seed point during growing
   updateFlag: True
-  # Update pointwise 
+  # Update pointwise
   pointUpdateFlag: True
-  # If not pointwise, update every: 
+  # If not pointwise, update every:
   updateInterval: 100
 planeshape:
   # Angle difference allowed to horizontal (treads) or vertical (risers) plane
@@ -67,9 +68,9 @@ planeshape:
   # Width requirement
   widthReqMin: 0.0
   widthReqMax: 10.0
-  treadDepthMin: 0
+  treadDepthMin: 0.0
   treadDepthMax: 0.50
-  riserHeightMin: 0
+  riserHeightMin: 0.0
   riserHeightMax: 0.24
 recognition:
   # graphMeth false for extended search - true for simple search

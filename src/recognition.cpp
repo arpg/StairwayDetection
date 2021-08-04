@@ -100,35 +100,35 @@ void recognition::loadConfig(StairDetectionParams::RecognitionParams config)
 
 void recognition::filter()
 {
-//	PointCloudT groundCloud;
-//	for(int xCor = -10; xCor < 11; xCor++)
-//	{
-//		for(int yCor = -10; yCor < 11; yCor++)
-//		{
-//			PointT addPoint;
-//			addPoint.x = 0.1*xCor;
-//			addPoint.y = 0.1*yCor;
-//			addPoint.z = 0;
-//			groundCloud.push_back(addPoint);
-//		}
-//	}
+	//	PointCloudT groundCloud;
+	//	for(int xCor = -10; xCor < 11; xCor++)
+	//	{
+	//		for(int yCor = -10; yCor < 11; yCor++)
+	//		{
+	//			PointT addPoint;
+	//			addPoint.x = 0.1*xCor;
+	//			addPoint.y = 0.1*yCor;
+	//			addPoint.z = 0;
+	//			groundCloud.push_back(addPoint);
+	//		}
+	//	}
 
-	double checkTime = 0;
-	double extendTime =0;
-	double whole_start = pcl::getTime();
-	memTime = 0;
-	widthTime = 0;
-	sortTime = 0;
-	getWTime = 0;
+		double checkTime = 0;
+		double extendTime =0;
+		double whole_start = pcl::getTime();
+		memTime = 0;
+		widthTime = 0;
+		sortTime = 0;
+		getWTime = 0;
 
-	// see loadConfig()
-	// float minStairInc = sin(10.0/180.0*M_PI);
-	// float maxStairInc = sin(50.0/180.0*M_PI);
+		// see loadConfig()
+		// float minStairInc = sin(10.0/180.0*M_PI);
+		// float maxStairInc = sin(50.0/180.0*M_PI);
 
-	globalAddedLabel.clear();
-	stairCount = 0;
+		globalAddedLabel.clear();
+		stairCount = 0;
 
-	basePart = 0;
+		basePart = 0;
     for(int firstSeg=0; firstSeg<stairRiseRegions.size()-1; firstSeg++)
     {
     	// Check if the current segment is already used within a solution if yes skip based on the selection //
@@ -139,7 +139,7 @@ void recognition::filter()
     			continue;
     		}
     	}
-        for(int secondSeg=firstSeg+1; secondSeg<stairRiseRegions.size();secondSeg++)
+        for(int secondSeg=firstSeg+1; secondSeg<stairRiseRegions.size(); secondSeg++)
         {
         	// Check if the current segment is already used within a solution if yes skip based on the selection //
         	if(graphMeth == true)
@@ -188,7 +188,7 @@ void recognition::filter()
 
 					// Check the horizontal distance between the planes //
 					float hDist = fabs((secondPatch.segmentCentroid - firstPatch.segmentCentroid).head(3).dot(dirVec));
-					if(hDist > pDistance[0] && hDist < pDistance[1] && ((firstPatch.segmentCentroid[2] > 0.1 && secondPatch.segmentCentroid[2] > 0.1) || (not(floorInformation))))
+					if((hDist > pDistance[0] && hDist < pDistance[1] && ((firstPatch.segmentCentroid[2] > 0.1 && secondPatch.segmentCentroid[2] > 0.1) || (not(floorInformation)))) || !pdFlag)
 					{
 						// Check the angle difference between the planes //
 	//					float angleDifference = fabs(firstPatch.segmentCoefficient.head(2).dot(secondPatch.segmentCoefficient.head(2)));
@@ -199,7 +199,7 @@ void recognition::filter()
 						secondNormal.normalize();
 						float angleDifference = fabs(firstNormal.dot(secondNormal));
 
-						if(angleDifference > parAngle)
+						if((angleDifference > parAngle) || !parFlag)
 						{
 							// Check vertical distance between the planes //
 							firstPatch.getHeight();
@@ -224,7 +224,7 @@ void recognition::filter()
 	//							else
 	//								overlap = (secondPatch.segmentCentroid[2] + secondPatch.height[0]) - (firstPatch.segmentCentroid[2] + firstPatch.height[1]);
 
-								if(fabs(vDist) > nDistance[0] && fabs(vDist) < nDistance[1])// && overlap > -0.05)
+								if((fabs(vDist) > nDistance[0] && fabs(vDist) < nDistance[1]) || !ndFlag)// && overlap > -0.05)
 								{
 									if((secondPatch.segmentCentroid.head(3) - firstPatch.segmentCentroid.head(3)).dot(dirVec) < 0)
 									{
@@ -249,6 +249,8 @@ void recognition::filter()
 									// Check the inlination //
 									if(dirVecNorm[2] < maxStairInc && dirVecNorm[2] > minStairInc)
 									{
+										// printf("Risers %d %d Joined.\n", firstSeg, secondSeg);
+
 										stairTreads.clear();
 										stairRises.clear();
 										addedLabel.clear();
@@ -294,10 +296,18 @@ void recognition::filter()
 										check();
 										double checkEnd = pcl::getTime();
 										checkTime += checkEnd - checkStart;
+									} else {
+										// printf("Risers %d %d Failed due to inclination.\n", firstSeg, secondSeg);
 									}
+								} else {
+									// printf("Risers %d %d Failed due to vertical distance.\n", firstSeg, secondSeg);
 								}
 							}
+						} else {
+							// printf("Risers %d %d Failed due to angle difference.\n", firstSeg, secondSeg);
 						}
+					} else {
+						// printf("Risers %d %d Failed due to horizontal distance.\n", firstSeg, secondSeg);
 					}
 				}
 			}
@@ -330,12 +340,12 @@ void recognition::filter()
         	{
 				// Check vertical distance //
 				float vDist = secondPatch.segmentCentroid[2] - firstPatch.segmentCentroid[2];
-				if(fabs(vDist) > nDistance[0] && fabs(vDist) < nDistance[1] && ((firstPatch.segmentCentroid[2] > 0.1 && secondPatch.segmentCentroid[2] > 0.1) || (not(floorInformation))))
+				if((fabs(vDist) > nDistance[0] && fabs(vDist) < nDistance[1] && ((firstPatch.segmentCentroid[2] > 0.1 && secondPatch.segmentCentroid[2] > 0.1) || (not(floorInformation)))) || !ndFlag)
 				{
 					// Check all 3 possible direction initializations //
 					for(int dirInit = 0; dirInit < 3; dirInit++)
 					{
-						if(fabs(firstPatch.segmentCoefficient[2]*secondPatch.segmentCoefficient[2]) > parAngle)
+						if((fabs(firstPatch.segmentCoefficient[2]*secondPatch.segmentCoefficient[2]) > parAngle) || !parFlag)
 						{
 							if(dirInit == 0)
 							{
@@ -374,7 +384,7 @@ void recognition::filter()
 									hDist = fabs(distVec.head(2).dot(secondPatch.segmentCentroid.head(2) - firstPatch.segmentCentroid.head(2)));
 
 								// Check horizontal distance //
-								if(hDist > pDistance[0] && hDist < pDistance[1])
+								if((hDist > pDistance[0] && hDist < pDistance[1]) || !pdFlag)
 								{
 
 									distVec *= hDist;
@@ -386,6 +396,8 @@ void recognition::filter()
 									// Check the inlination //
 									if(dirVecNorm[2] < maxStairInc && dirVecNorm[2] > minStairInc)
 									{
+										// printf("Treads %d %d Joined.\n", firstSeg, secondSeg);
+
 										stairTreads.clear();
 										stairRises.clear();
 										addedLabel.clear();
@@ -431,11 +443,19 @@ void recognition::filter()
 										check();
 										double checkEnd = pcl::getTime();
 										checkTime += checkEnd - checkStart;
+									} else {
+										// printf("Treads %d %d Failed due to inclination.\n", firstSeg, secondSeg);
 									}
+								} else {
+									// printf("Treads %d %d Failed due to horizontal distance.\n", firstSeg, secondSeg);
 								}
 							}
+						} else {
+							// printf("Treads %d %d Failed due to angle difference.\n", firstSeg, secondSeg);
 						}
 					}
+				} else {
+					// printf("Treads %d %d Failed due to vertical distance.\n", firstSeg, secondSeg);
 				}
             }
         }
@@ -484,7 +504,7 @@ void recognition::run(StairVector& output)
 	StairVector stairSolution;
 	if(difSolsOnly && graphMeth != true)
 	{
-		// simple search 
+		// simple search
 		for(int stairIdx = 0; stairIdx < stairs.size()-1; stairIdx++)
 		{
 			delIDXIter = delIDX.find(stairIdx);
@@ -1837,7 +1857,7 @@ bool recognition::isStairRiseMatch(int regPos, int stairNo)
 
         if(fabs(vDist-stairNo*distVec[2]) < maxStairRiseDist) // Check the vertical difference
         {
-            if(fabs( hDist - stairNo*stairWidth) < maxStairRiseDist ) // Check the horizontal distance
+            if(fabs( hDist - stairNo*stairWidth) < maxStairRiseHDist ) // Check the horizontal distance
             {
                 if(acos(fabs(normDirVec.dot(normTemp.head(2)))) / M_PI *180 < 20) // Check the angle difference
                 {
@@ -2749,5 +2769,3 @@ int recognition::OptimizationFunctor::operator () (
 	fvec = estimator_->computeDistanceNew(estVec, estimator_->stairRises, estimator_->stairTreads);
 	return (0);
 }
-
-

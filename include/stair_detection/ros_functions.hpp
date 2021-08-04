@@ -297,6 +297,14 @@ inline void pubLabels(ros::Publisher* pub, regions segments, std::string frame="
 
     {
     visualization_msgs::MarkerArray mkr_arr_msg;
+
+    {
+      visualization_msgs::Marker mkr;
+      mkr.action = visualization_msgs::Marker::DELETEALL;
+      mkr_arr_msg.markers.push_back(mkr);
+    }
+    pub->publish(mkr_arr_msg);
+
     for(uint i=0; i<segments.size(); i++)
     {
         visualization_msgs::Marker mkr_msg;

@@ -9,7 +9,7 @@
 
     <arg name="config_filepath" default="$(find stair_detection)/config.yaml"/>
 
-    <node pkg="stair_detection" type="stair_detection_node" name="stair_detector" output="log" launch-prefix="$(arg launch_prefix)" respawn="true">
+    <node pkg="stair_detection" type="stair_detection_node" name="stair_detector" output="screen" launch-prefix="$(arg launch_prefix)" respawn="true">
         <rosparam command="load" file="$(arg config_filepath)"/>
         <remap from="~input_cloud" to="$(arg input_cloud_topic)"/>
         <remap from="~is_stair_cloud" to="$(arg output_whole_cloud_topic)"/>
