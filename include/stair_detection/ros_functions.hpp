@@ -383,9 +383,9 @@ inline void pubNormalCloud(ros::Publisher* pub, PointCloudT tcloud, NormalCloud 
     cloud_msg.header.stamp = stamp;
     cloud_msg.type = cloud_msg.POINTS;
     cloud_msg.action = cloud_msg.ADD;
-    cloud_msg.scale.x = 0.005;
-    cloud_msg.scale.y = 0.005;
-    cloud_msg.scale.z = 0.005;
+    cloud_msg.scale.x = 0.025;
+    cloud_msg.scale.y = 0.025;
+    cloud_msg.scale.z = 0.025;
     cloud_msg.lifetime = ros::Duration(0.0);
     for(uint i=0; i<tcloud.size(); i++)
     {
@@ -428,9 +428,9 @@ inline void pubCurvature(ros::Publisher* pub, PointCloudT tcloud, NormalCloud nc
     cloud_msg.header.stamp = stamp;
     cloud_msg.type = cloud_msg.POINTS;
     cloud_msg.action = cloud_msg.ADD;
-    cloud_msg.scale.x = 0.005;
-    cloud_msg.scale.y = 0.005;
-    cloud_msg.scale.z = 0.005;
+    cloud_msg.scale.x = 0.025;
+    cloud_msg.scale.y = 0.025;
+    cloud_msg.scale.z = 0.025;
     cloud_msg.lifetime = ros::Duration(0.0);
     for(uint i=0; i<tcloud.size(); i++)
     {
