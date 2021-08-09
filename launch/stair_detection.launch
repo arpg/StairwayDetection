@@ -5,14 +5,14 @@
     <arg name="launch_prefix" default="gdb -ex run --args" if="$(arg enable_debug)"/>
 
     <arg name="input_cloud_topic" default="cloud"/>
-    <arg name="output_whole_cloud_topic" default="stair_cloud"/>
+    <arg name="output_cloud_topic" default="stair_cloud"/>
 
     <arg name="config_filepath" default="$(find stair_detection)/config.yaml"/>
 
     <node pkg="stair_detection" type="stair_detection_node" name="stair_detector" output="log" launch-prefix="$(arg launch_prefix)" respawn="true">
         <rosparam command="load" file="$(arg config_filepath)"/>
         <remap from="~input_cloud" to="$(arg input_cloud_topic)"/>
-        <remap from="~is_stair_cloud" to="$(arg output_whole_cloud_topic)"/>
+        <remap from="~is_stair_cloud" to="$(arg output_cloud_topic)"/>
     </node>
 
     <!-- <node pkg="rviz" type="rviz" name="rviz"
