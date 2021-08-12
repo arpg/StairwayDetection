@@ -6,6 +6,7 @@
 
     <arg name="input_cloud_topic" default="cloud"/>
     <arg name="output_cloud_topic" default="stair_cloud"/>
+    <arg name="fixed_frame_id"                      default="map"/>
 
     <arg name="config_filepath" default="$(find stair_detection)/config.yaml"/>
 
@@ -13,6 +14,7 @@
         <rosparam command="load" file="$(arg config_filepath)"/>
         <remap from="~input_cloud" to="$(arg input_cloud_topic)"/>
         <remap from="~is_stair_cloud" to="$(arg output_cloud_topic)"/>
+        <param name="~fixed_frame_id"    value="$(arg fixed_frame_id)"/>
     </node>
 
     <!-- <node pkg="rviz" type="rviz" name="rviz"
