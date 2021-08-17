@@ -247,6 +247,7 @@ public:
     inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
     {
         if(!ros::ok()){ return; }
+        if(input_msg.width*input_msg.height < 1){ return; }
 
         ROS_INFO("Got cloud!");
 
