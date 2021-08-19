@@ -301,8 +301,8 @@ public:
         double preAE = pcl::getTime();
         ROS_INFO("Preanalysis took: %f",preAE-preAS);
 
-        // pubTCloud(&main_cloud_pub_, *mainCloud);
-        // pubCCloud(&normal_cloud_pub_, *mainCloud, *prepNomalCloud);
+        pubTCloud(&main_cloud_pub_, *mainCloud);
+        pubCCloud(&normal_cloud_pub_, *mainCloud, *prepNomalCloud);
 
     // Starting segmentation //
 
